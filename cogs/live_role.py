@@ -19,6 +19,7 @@ class Live_Role:
             # Implement a means to "ignore" the game filter list for certain users as desired
         ]
 
+
     # Consider moving to commands into "moderation" cog, editing calls within on_member_update here accordingly
     def remove_role(self, member, role, reason=None):
         if role in member.roles:
@@ -29,7 +30,7 @@ class Live_Role:
     async def on_member_update(self, before, after):
         # First get info for the server's 'Live' role
         #  Currently this is just hardcoded as 'Live' but in the future it should be changeable by settings
-        live_role = discord.utils.get(after.server.roles, name = 'Live')
+        live_role = discord.utils.get(after.guild.roles, name = 'Live')
         rem_reason = 'No longer streaming a game from the game filter.'
         # If a user has started or updates their streaming status and is playing a game from the selection, assign the role to them
         if discord.Streaming in after.activities:

@@ -9,52 +9,58 @@ class Moderation:
         self.client = client
 
 
-    #Combine the kick and ban commands into one per DRY standard
-    @commands.command()
-    async def ban(self, ctx, target:discord.Member = None, reason=None):
+    async def ban_kick(self, ctx, target:discord.Member = None, reason = None, ban = False):
+        # Set the action word according to which command the user invoked
+        if ban:
+            w1, w2 = 'ban', 'banned'
+        else:
+            w1, w2 = 'kick', 'kicked'
         # This section checks for misuses
+        if target == None:
+            await ctx.channel.send(f'Usage: `!{w1} @target`')
+            return
         if target == ctx.message.author:
-            await ctx.channel.send('You cannot ban yourself!')
+            await ctx.channel.send(f'You cannot {w1} yourself!')
             return
-        elif target == None:
-            await ctx.channel.send('Who do you want to ban?')
-            return
-        # Bots can't be banned/kicked nor messaged by a bot 
-        elif target.bot:
+        # Bots shouldn't be banned/kicked nor messaged by a bot 
+        if target.bot:
             await ctx.channel.send(f'{target} is a bot -- I cannot ban them.')
             return
-        # Ban them, send a message to them regarding the ban
-        msg = f'You have been banned from {ctx.guild.name}!'
-        await target.send(msg)
-        await ctx.guild.ban(target)
-        # Alert the channel of the ban's completion
-        await ctx.channel.send(f'{target} is banned!')
-        # Delete the msg invoking the ban command
-        await ctx.message.delete()
+        # Check if the user is already banned -- if so, give the reason and exit
+        try:
+            ban_info = await ctx.guild.get_ban(target)
+            reason = 'No reason was given.'
+            if ban_info[1]:
+                reason = f'\nReason: `{ban_info[1]}`.'
+            await ctx.channel.send(f'{ban_info[0]} was already banned.{reason}')
+        except:
+            pass
+        # A ban/kick will fail if the target has a "higher" role than the bot and/or the bot doesn't have the ban_member permissions
+        try:
+            if ban:
+                await ctx.guild.ban(target)
+            else:
+                await ctx.guild.kick(target)
+        except:
+            await ctx.channel.send(f'I do not have the required permissions to {w1} {target}.')
+            return
+        # Notify the target and the guild channel upon ban/kick completion
+        msg1, msg2 = f'You have been {w2} from {ctx.guild.name}!', f'{target} was {w2}!'
+        await target.send(msg1)
+        await ctx.channel.send(msg2)
 
 
     @commands.command()
-    async def kick(self, ctx, target:discord.Member = None, reason=None):
-        # This section checks for misuses
-        if target == ctx.message.author:
-            await ctx.channel.send('You cannot kick yourself!')
-            return
-        elif target == None:
-            await ctx.channel.send('Who do you want to kick?')
-            return
-        # Bots can't be banned/kicked nor messaged by a bot 
-        elif target.bot:
-            await ctx.channel.send(f'{target} is a bot -- I cannot kick them.')
-            return
-        # Ban them, send a message to them regarding the ban/kick
-        msg = f'You have been kicked from {ctx.guild.name}!'
-        await target.send(msg)
-        await ctx.guild.kick(target)
-        # Alert the channel of the ban/kick completion
-        await ctx.channel.send(f'{target} was kicked!')
-        # Delete the msg invoking the ban/kick command
-        await ctx.message.delete()
+    async def ban(self, ctx, target:discord.Member = None, reason=None):
+        # Call ban_kick with ban set to True
+        await self.ban_kick(ctx, target, reason, True)
 
+
+    @commands.command()
+    async def kick(self, ctx, target:discord.Member = None, reason = None):
+        # Call ban_kick without setting ban to True
+        await self.ban_kick(ctx, target, reason)
+        
 
 def setup(client):
     client.add_cog(Moderation(client))
