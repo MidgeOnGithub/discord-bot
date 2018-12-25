@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 # In cogs, client events do not need any sort of @client.event decorator
-# Commands need @commands.command() instead of @client.command()
+#  Additionally, commands require @commands.command() instead of @client.command()
 
 class Live_Role:
     def __init__(self, client):
