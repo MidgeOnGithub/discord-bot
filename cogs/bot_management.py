@@ -34,7 +34,7 @@ class Bot_Management:
     async def ping(self, ctx):
         # Tests the bot's ping
         ping = round(self.client.latency * 1000)
-        await ctx.channel.send(f'My ping is {ping}ms')
+        await ctx.channel.send(f'My ping is {ping} ms')
 
 
 def setup(client):
