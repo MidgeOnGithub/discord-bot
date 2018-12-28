@@ -28,15 +28,17 @@ class Moderation:
             return
         # Check if bot and author have the required guild permissions
         if ban:
-            author_perms = ctx.message.author.ban_members
-            bot_perms = self.client.user.ban_members
+            author_perms = ctx.message.author.guild_permissions.ban_members
+            bot_perms = ctx.me.guild_permissions.ban_members
         else:
-            author_perms = ctx.message.author.kick_members
-            bot_perms = self.client.user.kick_members
+            author_perms = ctx.message.author.guild_permissions.kick_members
+            bot_perms = ctx.me.guild_permissions.kick_members
         if not author_perms:
             await ctx.channel.send(f'You do not have permissions to {w1} members.')
+            return
         if not bot_perms:
             await ctx.channel.send(f'I do not have permissions to {w1} members.')
+            return
         # Check if the user is already banned
         # If so, give reason and exit
         try:
@@ -53,14 +55,14 @@ class Moderation:
             return
         except discord.NotFound:
             pass
-        # A ban/kick will fail if the target has a "higher" role than the bot and/or the bot doesn't have the ban_member permissions
+        # A ban/kick will fail if the target has a "higher" role than the bot
         try:
             if ban:
                 await ctx.guild.ban(target)
             else:
                 await ctx.guild.kick(target)
         except discord.Forbidden:
-            await ctx.channel.send(f'I cannot {w1} {target} due to more elevated permissions/roles.')
+            await ctx.channel.send(f'I cannot {w1} {target} due to their elevated role(s).')
             return
         # Notify both target and channel upon ban/kick completion
         msg1 = f'You have been {w2} from {ctx.guild.name}!'
@@ -86,7 +88,7 @@ class Moderation:
         # Call ban_kick without setting ban to True
         await self.ban_kick(ctx, target, reason)
 
-    # Because @<command>.error handlers are local, must have a "dummy" version for kick
+    # Because @<command>.error handlers are local, kick needs a "dummy"
     @kick.error
     async def kick_handler(self, ctx, error):
         await self.ban_kick_handler(ctx, error)
