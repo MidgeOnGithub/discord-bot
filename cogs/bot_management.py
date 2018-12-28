@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
 
-# In cogs, client events do not need any sort of @client.event decorator
-#  Additionally, commands require @commands.command() instead of @client.command()
+# In cogs, client events do not need a @client.event decorator
+# But commands need @commands.command() instead of @client.command()
 
 class Bot_Management:
     def __init__(self, client):
@@ -18,7 +18,6 @@ class Bot_Management:
             print(f'{ext} not loaded. [{err}]')
             await ctx.channel.send(f'{ext} was not loaded.')
 
-
     @commands.command()
     async def unload(self, ctx, ext):
         try:
@@ -28,7 +27,6 @@ class Bot_Management:
         except Exception as err:
             print(f'{ext} not unloaded. [{err}]')
             await ctx.channel.send(f'{ext} was not unloaded.')
-
 
     @commands.command()
     async def ping(self, ctx):
