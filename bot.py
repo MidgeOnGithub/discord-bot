@@ -30,43 +30,14 @@ async def on_message(message):
     await client.process_commands(message)
 
 
-@client.command()
-async def user(ctx, target: discord.Member = None):
-    # Determine who is the target, set pronouns accordingly
-    # If no target is specified, invoking member is target
-    if target == None:
-        target = ctx.message.author
-        p1, p2 = 'Your', 'You'
-    elif target.bot:
-        p1, p2 = 'Its', 'It'
-    else:
-        p1, p2 = 'Their', 'They'
-    # Determine certain properties and text regarding the target
-    nick = target.display_name
-    username = f'{target.name}#{target.discriminator}'
-    join_time = target.joined_at
-    # Point out a member's top role if they have one beyond @everyone
-    if len(target.roles) != 1:
-        role = target.top_role
-        r_msg = f'{p1} top role is {role}.'
-    else:
-        # Using this message prevents pinging @everyone
-        r_msg = f'{nick} has no special roles.'
-    # Point out if the member is a bot
-    if target.bot:
-        bot_msg = f'\n{nick} is a bot.'
-    else:
-        bot_msg = ''
-    # Send the message
-    await ctx.channel.send(f'{nick}\'s full username is {username}.\n{p2} joined at {join_time}.\n{r_msg}{bot_msg}')
-
 # A list of cog names: currently requires manual and edits
 # bot_management cog contains commands to load and unload extensions
 ## Could automate, e.g., search all of __main__'s sub-directories
 ### This list should generate from configuration/settings
 extensions = ['bot_management',
               'live',
-              'moderation']
+              'moderation',
+              'stats']
 
 # Only run the bot if this file is __main__ (is not imported)
 ## This should prevent setup.py/settings file(s) from starting the bot
