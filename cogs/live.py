@@ -11,13 +11,13 @@ class Live:
         self.game_filter = [
             # Game names must match exactly a name in Twitch's directory
             ### Filter should be configurable
-            ### Create commands to add, remove, replace filter entries
+            ### Make commands to add, remove, replace filter entries
             ### If this is quite complex, a separate cog may be needed
         ]
 
         self.member_whitelist = [
-            ### Implement a whitelist for members to "ignore" game_filter
-            ### Create commands to add, remove, replace whitelist entries
+            ### Implement whitelist for members to "ignore" game_filter
+            ### Make commands to add, remove, replace whitelist entries
         ]
 
     # Consider moving to "moderation" cog, editing on_member_update

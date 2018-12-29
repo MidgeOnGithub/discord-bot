@@ -8,8 +8,9 @@ class Moderation:
     def __init__(self, client):
         self.client = client
 
-    async def ban_kick(self, ctx, target: discord.User = None, reason=None, ban=False):
-        # Set the action word according to which command the user invoked
+    async def ban_kick(self, ctx, target: discord.User = None,
+                       reason=None, ban=False):
+        # Set verbs according to which command the user invoked
         if ban:
             w1, w2 = 'ban', 'banned'
         else:
@@ -44,7 +45,7 @@ class Moderation:
         try:
             # Collect a BanEntry tuple for the user, if it exists
             # Index 0 contains username, index 1 contains reason
-            # If this entry doesn't exist, a discord.NotFound error will raise
+            # If BanEntry doesn't exist, discord.NotFound error raises
             ban_info = await ctx.guild.get_ban(target)
             # By default, ban audit reason is None
             if ban_info[1]:
@@ -55,7 +56,7 @@ class Moderation:
             return
         except discord.NotFound:
             pass
-        # A ban/kick will fail if the target has a "higher" role than the bot
+        # A ban/kick fails if target has a "higher" role than the bot
         try:
             if ban:
                 await ctx.guild.ban(target)
@@ -71,7 +72,8 @@ class Moderation:
         await ctx.channel.send(msg2)
 
     @commands.command()
-    async def ban(self, ctx, target: discord.User = None, reason=None):
+    async def ban(self, ctx, target: discord.User = None,
+                  reason=None):
         # Call ban_kick with ban set to True
         await self.ban_kick(ctx, target, reason, True)
 
@@ -84,7 +86,8 @@ class Moderation:
             print(error)
 
     @commands.command()
-    async def kick(self, ctx, target: discord.User = None, reason=None):
+    async def kick(self, ctx, target: discord.User = None,
+                   reason=None):
         # Call ban_kick without setting ban to True
         await self.ban_kick(ctx, target, reason)
 
