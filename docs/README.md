@@ -34,5 +34,6 @@ Note that comments prefixed by more than one `#` indicate a developer note-to-se
 ### Important Clone/Fork Information
 Note that in the root directory of your project (or elsewhere, provided you edit bot.py accordingly) you need a `botcredentials.py` file with this code:
 > `TOKEN = 'YourDiscordDevAppTokenInQuotesEvenThoughItsANumber'`
+
 This is for security. By default, the file `botcredentials.py` will be gitignored if you use this project's `.gitignore` file, preventing TOKEN from being published anywhere when using git for version control.
 Of course, you can create an alternate implementation as you wish.
