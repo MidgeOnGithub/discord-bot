@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import discord
 from discord.ext import commands
 
@@ -8,7 +10,8 @@ client = commands.Bot(command_prefix='!',
                       status=discord.Status.idle,
                       activity=discord.Game(name='Booting...'))
 client.remove_command('help')
-
+# Store the bot's launch time for use in stats like uptime
+client.launch_time = datetime.utcnow()
 
 @client.event
 async def on_ready():
@@ -38,7 +41,7 @@ async def user(ctx, target: discord.Member = None):
         p1, p2 = 'Its', 'It'
     else:
         p1, p2 = 'Their', 'They'
-    # Determine certain properties and text regarding the user
+    # Determine certain properties and text regarding the target
     nick = target.display_name
     username = f'{target.name}#{target.discriminator}'
     join_time = target.joined_at
