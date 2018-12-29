@@ -10,7 +10,7 @@ client = commands.Bot(command_prefix='!',
                       status=discord.Status.idle,
                       activity=discord.Game(name='Booting...'))
 client.remove_command('help')
-# Store the bot's launch time for use in stats like uptime
+# Store the bot's launch time
 client.launch_time = datetime.utcnow()
 
 @client.event
@@ -20,7 +20,6 @@ async def on_ready():
     print(f'Serving {len(client.guilds)} guilds with a combined {len(client.users)} users!')
     await client.change_presence(status=discord.Status.online,
                                  activity=discord.Game(name='Active!'))
-
 
 @client.event
 async def on_message(message):
@@ -47,7 +46,7 @@ if __name__ == '__main__':
             # Assume an unchanged relative path to cog files
             client.load_extension('cogs.' + ext)
         except (discord.ClientException, ImportError) as err:
-            print(f'{ext} not loaded. Check it exists and has a `setup` function. [{err}]')
+            print(f'{ext} not loaded. Check it exists and has a proper `setup` function. [{err}]')
 
 # Start the bot client
 client.run(botcredentials.TOKEN)

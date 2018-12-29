@@ -16,15 +16,15 @@ class Moderation:
             w1, w2 = 'kick', 'kicked'
         # Checks for misuses
         # @ban.error decorator handles cases involving invalid targets
-        if target == None:
-            await ctx.channel.send(f'Usage: `!{w1} @target`')
+        if target is None:
+            await ctx.send(f'Usage: `!{w1} @target`')
             return
         if target == ctx.message.author:
-            await ctx.channel.send(f'You cannot {w1} yourself!')
+            await ctx.send(f'You cannot {w1} yourself!')
             return
         # Bots shouldn't be banned/kicked by another bot
         if target.bot:
-            await ctx.channel.send(f'{target} is a bot -- I cannot ban them.')
+            await ctx.send(f'{target} is a bot -- I cannot ban them.')
             return
         # Check if bot and author have the required guild permissions
         if ban:
@@ -34,10 +34,10 @@ class Moderation:
             author_perms = ctx.message.author.guild_permissions.kick_members
             bot_perms = ctx.me.guild_permissions.kick_members
         if not author_perms:
-            await ctx.channel.send(f'You do not have permissions to {w1} members.')
+            await ctx.send(f'You do not have permissions to {w1} members.')
             return
         if not bot_perms:
-            await ctx.channel.send(f'I do not have permissions to {w1} members.')
+            await ctx.send(f'I do not have permissions to {w1} members.')
             return
         # Check if the user is already banned
         # If so, give reason and exit
@@ -51,7 +51,7 @@ class Moderation:
                 reason = f'Reason: `{ban_info[1]}`.'
             else:
                 reason = 'No reason was given.'
-            await ctx.channel.send(f'{ban_info[0]} was already banned.\n{reason}')
+            await ctx.send(f'{ban_info[0]} was already banned.\n{reason}')
             return
         except discord.NotFound:
             pass
@@ -62,13 +62,13 @@ class Moderation:
             else:
                 await ctx.guild.kick(target)
         except discord.Forbidden:
-            await ctx.channel.send(f'I cannot {w1} {target} due to their elevated role(s).')
+            await ctx.send(f'I cannot {w1} {target} due to their elevated role(s).')
             return
         # Notify both target and channel upon ban/kick completion
         msg1 = f'You have been {w2} from {ctx.guild.name}!'
         await target.send(msg1)
         msg2 = f'{target} was {w2}!'
-        await ctx.channel.send(msg2)
+        await ctx.send(msg2)
 
     @commands.command()
     async def ban(self, ctx, target: discord.User = None, reason=None):
@@ -79,7 +79,7 @@ class Moderation:
     @ban.error
     async def ban_kick_handler(self, ctx, error):
         if isinstance(error, commands.BadArgument):
-            await ctx.channel.send(f'{error.args[0]}.')
+            await ctx.send(f'{error.args[0]}.')
         else:
             print(error)
 

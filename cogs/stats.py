@@ -37,7 +37,7 @@ class Stats:
         else:
             bot_msg = ''
         # Send the message
-        await ctx.channel.send(f'{nick}\'s full username is {username}.\n{p2} joined at {join_time}.\n{r_msg}{bot_msg}')
+        await ctx.send(f'{nick}\'s full username is {username}.\n{p2} joined at {join_time}.\n{r_msg}{bot_msg}')
 
 
 def setup(client):

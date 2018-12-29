@@ -13,28 +13,26 @@ class BotManagement:
     @commands.command()
     async def load(self, ctx, ext):
         try:
-            self.client.load_extension(ext)
-            print(f'Loaded {ext}')
-            await ctx.channel.send(f'{ext} loaded.')
-        except Exception as err:
+            self.client.load_extension('cogs.' + ext)
+            await ctx.send(f'{ext} loaded.')
+        except (discord.ClientException, ImportError) as err:
             print(f'{ext} not loaded. [{err}]')
-            await ctx.channel.send(f'{ext} was not loaded.')
+            await ctx.send(f'{ext} was not loaded. Check it exists and has a proper `setup` function.')
 
     @commands.command()
     async def unload(self, ctx, ext):
         try:
-            self.client.unload_extension(ext)
-            print(f'Unloaded {ext}')
-            await ctx.channel.send(f'{ext} unloaded.')
+            self.client.unload_extension('cogs.' + ext)
+            await ctx.send(f'{ext} unloaded.')
         except Exception as err:
             print(f'{ext} not unloaded. [{err}]')
-            await ctx.channel.send(f'{ext} was not unloaded.')
+            await ctx.send(f'{ext} was not unloaded.')
 
     @commands.command()
     async def ping(self, ctx):
         # Tests the bot's ping
         ping = round(self.client.latency * 1000)
-        await ctx.channel.send(f'My ping is {ping} ms')
+        await ctx.send(f'My ping is {ping} ms')
 
     @commands.command()
     async def uptime(self, ctx):
