@@ -42,7 +42,11 @@ class BotManagement:
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
         days, hours = divmod(hours, 24)
-        await ctx.send(f'Uptime: {days} days, {hours} hours, {minutes} minutes, and {seconds} seconds')
+        if days < 1:
+            d_msg = ''
+        else:
+            d_msg = f'{days} days, '
+        await ctx.send(f'Uptime: {d_msg}{hours} hours, {minutes} minutes, and {seconds} seconds')
 
 
 def setup(client):
