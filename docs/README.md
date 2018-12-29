@@ -11,7 +11,7 @@ The bot is being developed with a specific server and use case in mind.
 > Specific Use Case:
 > * Act as a guild helper, giving automated helpful responses to specific commands queued by members attempting to answer newcomer's or their own questions
 > * Keep track of everyone in the guild who is streaming and give them a server-specific "Live" role to highlight them among other guild members
-  > * This can be restricted by a game filter list (a user whitelist may be exempt from said filter)
+  >   * This can be restricted by a game filter list (a user whitelist may be exempt from said filter)
 
 If the project is enjoyable enough, it may be expanded for general use by others with configurable settings.
 > (Potential) Configurable Settings:
@@ -19,7 +19,7 @@ If the project is enjoyable enough, it may be expanded for general use by others
 > * Command permissions by roles (restricting who can use each command or each "category" of commands)
 > * Command cooldown timings (preventing individual or guild-wide spam)
 > * Optional guild-specific game filter list for "Live" role implementation
-  > * Optional whitelist allowing users to be exempt from said filter
+  >   * Optional whitelist allowing users to be exempt from said filter
 
 ### Code and Command Info
 Generally speaking, the code within this project is heartily commented, perhaps in some cases redundantly so.
