@@ -4,7 +4,7 @@ from discord.ext import commands
 # In cogs, client events do not need a @client.event decorator
 # But commands need @commands.command() instead of @client.command()
 
-class Bot_Management:
+class BotManagement:
     def __init__(self, client):
         self.client = client
 
@@ -36,5 +36,4 @@ class Bot_Management:
 
 
 def setup(client):
-    client.add_cog(Bot_Management(client))
-
+    client.add_cog(BotManagement(client))

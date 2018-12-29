@@ -1,5 +1,3 @@
-import os
-
 import discord
 from discord.ext import commands
 
@@ -11,9 +9,10 @@ client = commands.Bot(command_prefix='!',
                       activity=discord.Game(name='Booting...'))
 client.remove_command('help')
 
-# Once ready, give summary info and change Status
+
 @client.event
 async def on_ready():
+    # Once ready, give summary info and change Status
     print(f'Now online as {client.user}. Ready to go!')
     print(f'Serving {len(client.guilds)} guilds with a combined {len(client.users)} users!')
     await client.change_presence(status=discord.Status.online,
@@ -48,7 +47,7 @@ async def user(ctx, target: discord.Member = None):
         role = target.top_role
         r_msg = f'{p1} top role is {role}.'
     else:
-        ## Using this message prevents pinging @everyone
+        # Using this message prevents pinging @everyone
         r_msg = f'{nick} has no special roles.'
     # Point out if the member is a bot
     if target.bot:

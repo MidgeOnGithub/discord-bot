@@ -58,7 +58,7 @@ class Moderation:
         # A ban/kick will fail if the target has a "higher" role than the bot
         try:
             if ban:
-                await ctx.guild.ban(target)
+                await ctx.guild.ban(target, reason)
             else:
                 await ctx.guild.kick(target)
         except discord.Forbidden:
@@ -96,4 +96,3 @@ class Moderation:
 
 def setup(client):
     client.add_cog(Moderation(client))
-
