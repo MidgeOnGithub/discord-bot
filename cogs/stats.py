@@ -8,7 +8,6 @@ class Stats:
     def __init__(self, client):
         self.client = client
 
-
     @commands.command()
     async def user(self, ctx, target: discord.Member = None):
         # Determine who is the target, set pronouns accordingly
