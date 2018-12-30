@@ -1,5 +1,6 @@
-# Visual Studio Code files
+# Editor/IDE files
 .vscode/
+.idea/
 
 # Credentials / passwords
 botcredentials.py
