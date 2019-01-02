@@ -6,7 +6,7 @@ The code for this bot relies heavily upon the discord.py rewrite module, [which 
 > * Discord refers to "Servers" internally as "Guilds", as does the Discord.py Rewrite
 > * Discord.py rewrite refers to what is often called a "module" or "extension" as a "cog"
 
-The inspiration from the bot is a personal challenge in learning/conforming to PEP-8 standards while dealing with a medium-length project.
+The inspiration for the bot is a personal challenge in learning/conforming to PEP-8 standards while dealing with a medium-length project.
 The bot is being developed with a specific server and use case in mind.
 > Specific Use Case:
 > * Act as a guild helper, giving automated helpful responses to specific commands queued by members attempting to answer newcomer's or their own questions

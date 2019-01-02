@@ -96,6 +96,29 @@ class Moderation:
     async def kick_handler(self, ctx, error):
         await self.ban_kick_handler(ctx, error)
 
+    @commands.command(aliases=['delete', 'purge'])
+    async def clear(self, ctx, amount):
+        # Clear amount of messages from channel
+        ## Need to implement a way to handle `MissingRequiredArgument`
+        amount = int(amount)
+        # Check that the user entered an amount > 0
+        if amount < 1:
+            ctx.send('Invalid `amount` argument.')
+            return
+        # Increment amount to delete the invoking message as well
+        amount += 1
+        # Check invoker and bot permissions before trying to execute
+        author_perms = ctx.message.author.guild_permissions.manage_messages
+        bot_perms = ctx.me.guild_permissions.manage_messages
+        if not author_perms:
+            await ctx.send(f'You do not have the `Manage Messages` permission in this channel.')
+            return
+        if not bot_perms:
+            await ctx.send(f'I do not have the `Manage Messages` permission in this channel.')
+            return
+        # Delete the messages
+        await ctx.channel.purge(limit=amount)
+
 
 def setup(client):
     client.add_cog(Moderation(client))
