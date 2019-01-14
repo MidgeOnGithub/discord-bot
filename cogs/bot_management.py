@@ -24,8 +24,7 @@ class BotManagement:
         try:
             self.client.unload_extension('cogs.' + ext)
             await ctx.send(f'{ext} unloaded.')
-        except Exception as err:
-            print(f'{ext} not unloaded. [{err}]')
+        except Exception:
             await ctx.send(f'{ext} was not unloaded.')
 
     @commands.command()

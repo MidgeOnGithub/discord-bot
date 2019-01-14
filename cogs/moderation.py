@@ -18,15 +18,12 @@ class Moderation:
         # Checks for misuses
         # @ban.error decorator handles cases involving invalid targets
         if target is None:
-            await ctx.send(f'Usage: `!{w1} @target`')
-            return
+            return await ctx.send(f'Usage: `!{w1} @target`')
         if target == ctx.message.author:
-            await ctx.send(f'You cannot {w1} yourself!')
-            return
+            return await ctx.send(f'You cannot {w1} yourself!')
         # Bots shouldn't be banned/kicked by another bot
         if target.bot:
-            await ctx.send(f'{target} is a bot -- I cannot ban them.')
-            return
+            return await ctx.send(f'{target} is a bot -- I cannot ban them.')
         # Check if bot and author have the required guild permissions
         if ban:
             author_perms = ctx.message.author.guild_permissions.ban_members
@@ -35,11 +32,9 @@ class Moderation:
             author_perms = ctx.message.author.guild_permissions.kick_members
             bot_perms = ctx.me.guild_permissions.kick_members
         if not author_perms:
-            await ctx.send(f'You do not have permissions to {w1} members.')
-            return
+            return await ctx.send(f'You do not have permissions to {w1} members.')
         if not bot_perms:
-            await ctx.send(f'I do not have permissions to {w1} members.')
-            return
+            return await ctx.send(f'I do not have permissions to {w1} members.')
         # Check if the user is already banned
         # If so, give reason and exit
         try:
@@ -52,8 +47,7 @@ class Moderation:
                 reason = f'Reason: `{ban_info[1]}`.'
             else:
                 reason = 'No reason was given.'
-            await ctx.send(f'{ban_info[0]} was already banned.\n{reason}')
-            return
+            return await ctx.send(f'{ban_info[0]} was already banned.\n{reason}')
         except discord.NotFound:
             pass
         # A ban/kick fails if target has a "higher" role than the bot
@@ -63,8 +57,7 @@ class Moderation:
             else:
                 await ctx.guild.kick(target)
         except discord.Forbidden:
-            await ctx.send(f'I cannot {w1} {target} due to their elevated role(s).')
-            return
+            return await ctx.send(f'I cannot {w1} {target} due to their elevated role(s).')
         # Notify both target and channel upon ban/kick completion
         msg1 = f'You have been {w2} from {ctx.guild.name}!'
         await target.send(msg1)
@@ -96,28 +89,33 @@ class Moderation:
     async def kick_handler(self, ctx, error):
         await self.ban_kick_handler(ctx, error)
 
-    @commands.command(aliases=['delete', 'purge'])
-    async def clear(self, ctx, amount):
-        # Clear amount of messages from channel
-        ## Need to implement a way to handle `MissingRequiredArgument`
+    # Clear a given amount of messages from channel
+    @commands.command(aliases=['purge'])
+    async def clear(self, ctx, amount: int):
+        ## Should implement a way to handle `MissingRequiredArgument`
         amount = int(amount)
         # Check that the user entered an amount > 0
         if amount < 1:
-            ctx.send('Invalid `amount` argument.')
-            return
+            return await ctx.send('Invalid `amount` argument.')
+
         # Increment amount to delete the invoking message as well
         amount += 1
         # Check invoker and bot permissions before trying to execute
         author_perms = ctx.message.author.guild_permissions.manage_messages
         bot_perms = ctx.me.guild_permissions.manage_messages
         if not author_perms:
-            await ctx.send(f'You do not have the `Manage Messages` permission in this channel.')
-            return
+            return await ctx.send(f'You do not have the `Manage Messages` permission in this channel.')
         if not bot_perms:
-            await ctx.send(f'I do not have the `Manage Messages` permission in this channel.')
-            return
+            return await ctx.send(f'I do not have the `Manage Messages` permission in this channel.')
         # Delete the messages
         await ctx.channel.purge(limit=amount)
+
+    # Delete a passed message (can only be invoked by other commands)
+    async def delete(self, ctx):
+        bot_perms = ctx.me.guild_permissions.manage_messages
+        if not bot_perms:
+            return await ctx.send(f'I need the `Manage Messages` channel permission before I can process this command.')
+        await ctx.message.delete()
 
 
 def setup(client):

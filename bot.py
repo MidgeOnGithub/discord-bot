@@ -46,7 +46,7 @@ if __name__ == '__main__':
             # Assume an unchanged relative path to cog files
             client.load_extension('cogs.' + ext)
         except (discord.ClientException, ImportError) as err:
-            print(f'{ext} not loaded. Check it exists and has a proper `setup` function. [{err}]')
+            print(f'{ext} not loaded. [{err}]')
 
 # Start the bot client
 client.run(botcredentials.TOKEN)
