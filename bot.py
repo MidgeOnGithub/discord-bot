@@ -6,47 +6,44 @@ from discord.ext import commands
 import botcredentials
 
 # Set command prefix and a Status indicating initialization
-client = commands.Bot(command_prefix='!',
+bot = commands.Bot(command_prefix='!',
                       status=discord.Status.idle,
                       activity=discord.Game(name='Booting...'))
-client.remove_command('help')
-# Store the bot's launch time
-client.launch_time = datetime.utcnow()
 
-@client.event
+# Store the bot's launch time
+bot.start_time = datetime.utcnow()
+
+@bot.event
 async def on_ready():
     # Once ready, give summary info and change Status
-    print(f'Now online as {client.user}. Ready to go!')
-    print(f'Serving {len(client.guilds)} guilds with a combined {len(client.users)} users!')
-    await client.change_presence(status=discord.Status.online,
+    print(f'Now online as {bot.user}. Ready to go!')
+    print(f'Serving {len(bot.guilds)} guilds with {len(bot.users)} users!')
+    await bot.change_presence(status=discord.Status.online,
                                  activity=discord.Game(name='Active!'))
 
-@client.event
+@bot.event
 async def on_message(message):
     # Ignore messages from self, otherwise process as usual
-    if message.author == client.user:
+    if message.author == bot.user:
         return
-    await client.process_commands(message)
+    await bot.process_commands(message)
 
 
-# A list of cog names: currently requires manual and edits
-# bot_management cog contains commands to load and unload extensions
-## Could automate, e.g., search all of __main__'s sub-directories
-### This list should generate from configuration/settings
-extensions = ['bot_management',
-              'live',
-              'moderation',
-              'stats']
+# A list of cog names: currently requires manual entry
+# owner cog contains commands to load and unload extensions
+default = ['owner', 'live', 'moderation', 'stats']
 
-# Only run the bot if this file is __main__ (is not imported)
-## This should prevent setup.py/settings file(s) from starting the bot
+# TODO: Optional cogs should be added by configuration/settings
+extensions = default
+
+# Only run the bot if this file is __main__
 if __name__ == '__main__':
     for ext in extensions:
         try:
             # Assume an unchanged relative path to cog files
-            client.load_extension('cogs.' + ext)
+            bot.load_extension('cogs.' + ext)
         except (discord.ClientException, ImportError) as err:
             print(f'{ext} not loaded. [{err}]')
 
-# Start the bot client
-client.run(botcredentials.TOKEN)
+# Start the bot bot
+bot.run(botcredentials.TOKEN)

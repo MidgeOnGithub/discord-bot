@@ -112,8 +112,7 @@ class Moderation:
 
     # Delete a passed message (can only be invoked by other commands)
     async def delete(self, ctx):
-        bot_perms = ctx.me.guild_permissions.manage_messages
-        if not bot_perms:
+        if not ctx.me.guild_permissions.manage_messages:
             return await ctx.send(f'I need the `Manage Messages` channel permission before I can process this command.')
         await ctx.message.delete()
 
