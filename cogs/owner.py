@@ -15,7 +15,7 @@ class Owner:
         self.bot = bot
 
     @commands.command()
-    async def load(self, ctx, ext):
+    async def load(self, ctx, cog):
         """
         Load a cog.
 
@@ -23,25 +23,35 @@ class Owner:
         `load moderation`
         """
         try:
-            self.bot.load_extension('cogs.' + ext)
-            await ctx.send(f'{ext} loaded.')
+            self.bot.load_extension('cogs.' + cog)
+            await ctx.send(f'{cog} loaded.')
         except (discord.ClientException, ImportError) as err:
-            print(f'{ext} not loaded. [{err}]')
-            await ctx.send(f'{ext} was not loaded. Check it exists and has a proper `setup` function.')
+            print(f'{cog} not loaded. [{err}]')
+            await ctx.send(f'{cog} was not loaded. Check it exists and has a proper `setup` function.')
 
     @commands.command()
-    async def unload(self, ctx, ext):
-        """Unload a cog."""
+    async def unload(self, ctx, cog):
+        """
+        Unload a cog.
+
+        Command Usage:
+        `unload stats`
+        """
         try:
-            self.bot.unload_extension('cogs.' + ext)
-            await ctx.send(f'{ext} unloaded.')
+            self.bot.unload_extension('cogs.' + cog)
+            await ctx.send(f'{cog} unloaded.')
         except Exception as e:
-            print(f'{ext} not unloaded. [{e}]')
-            await ctx.send(f'{ext} was not unloaded.')
+            print(f'{cog} not unloaded. [{e}]')
+            await ctx.send(f'{cog} was not unloaded.')
 
     @commands.command()
     async def uptime(self, ctx):
-        """Returns bot's uptime."""
+        """
+        Returns the bot's uptime.
+
+        Command Usage:
+        `uptime`
+        """
         # From https://github.com/Rapptz/RoboDanny
         delta_uptime = datetime.datetime.utcnow() - self.bot.start_time
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)

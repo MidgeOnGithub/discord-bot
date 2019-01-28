@@ -7,8 +7,8 @@ import botcredentials
 
 # Set command prefix and a Status indicating initialization
 bot = commands.Bot(command_prefix='!',
-                      status=discord.Status.idle,
-                      activity=discord.Game(name='Booting...'))
+                   status=discord.Status.idle,
+                   activity=discord.Game(name='Booting...'))
 
 # Store the bot's launch time
 bot.start_time = datetime.utcnow()
@@ -19,7 +19,7 @@ async def on_ready():
     print(f'Now online as {bot.user}. Ready to go!')
     print(f'Serving {len(bot.guilds)} guilds with {len(bot.users)} users!')
     await bot.change_presence(status=discord.Status.online,
-                                 activity=discord.Game(name='Active!'))
+                              activity=discord.Game(name='Active!'))
 
 @bot.event
 async def on_message(message):
@@ -45,5 +45,5 @@ if __name__ == '__main__':
         except (discord.ClientException, ImportError) as err:
             print(f'{ext} not loaded. [{err}]')
 
-# Start the bot bot
+# Start the bot
 bot.run(botcredentials.TOKEN)

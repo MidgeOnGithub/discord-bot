@@ -5,6 +5,7 @@ from discord.ext import commands
 # But commands need @commands.command() instead of @bot.command()
 
 class Live:
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -39,14 +40,14 @@ class Live:
             # Remove 'Live' role if they are longer streaming
             return await self.change_role(after, live_role)
         # Assign 'Live' role to a member who starts or updates a stream
-        # but only if playing from game_filter or exempt from it          
+        # but only if playing from game_filter or exempt from it
         if discord.Streaming in after.activities:
             if (after not in self.member_blacklist and
                 (after in self.member_whitelist or
-                self.game_filter is None or 
+                self.game_filter is None or
                 after.Streaming.details in self.game_filter)):
                 return await self.change_role(after, live_role)
-            
+
         if discord.Streaming in after.activities:
             if (after.Streaming.details in self.game_filter or
                 self.game_filter is None):
@@ -55,7 +56,6 @@ class Live:
                     await self.change_role(after, live_role)
             else:
                 await self.change_role(after, live_role)
-        
 
     # TODO: Maybe make this a command in moderation cog instead (DRY)
     async def change_role(self, member, role, reason=None, remove=False):
@@ -65,20 +65,24 @@ class Live:
                 try:
                     await member.remove_roles(role, reason)
                 except discord.Forbidden:
-                    print(f'Cannot alter {role} due to elevated permissions.')
+                    print(f'Cannot alter `{role}` due to ' +
+                          'elevated permissions.')
             else:
                 # No need to add the role if member already has it
-                print(f'{member} already has {role} -- no change.')
+                print(f'{member.display_name} already has the ' +
+                      f'`{role}` role -- no change.')
         else:
             # TODO: Fix the incorrect condition below
             if remove:
                 # No need to remove role if member does not have it
-                print(f'{member.displayname} does not have {role} -- no change.')
+                print(f'{member.display_name} does not have the ' +
+                      f'`{role}` role -- no change.')
             else:
                 try:
                     await member.add_roles(role)
                 except discord.Forbidden:
-                    print(f'Cannot alter {role} due to elevated permissions.')
+                    print(f'Cannot alter `{role}` due to ' +
+                          'elevated permissions.')
 
 
 def setup(bot):

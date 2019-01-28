@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
 
-# In cogs, client events do not need a @client.event decorator
-# But commands need @commands.command() instead of @client.command()
+# In cogs, bot events do not need a @bot.event decorator
+# But commands need @commands.command() instead of @bot.command()
 
 class Moderation:
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, bot):
+        self.bot = bot
 
     async def ban_kick(self, ctx, target: discord.User = None,
                        reason=None, ban=False):
@@ -117,5 +117,5 @@ class Moderation:
         await ctx.message.delete()
 
 
-def setup(client):
-    client.add_cog(Moderation(client))
+def setup(bot):
+    bot.add_cog(Moderation(bot))
