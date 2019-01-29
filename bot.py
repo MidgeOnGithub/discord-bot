@@ -16,8 +16,9 @@ bot.start_time = datetime.utcnow()
 @bot.event
 async def on_ready():
     # Once ready, give summary info and change Status
-    print(f'Now online as {bot.user}. Ready to go!')
-    print(f'Serving {len(bot.guilds)} guilds with {len(bot.users)} users!')
+    print(f'Now online as {bot.user}. Ready to go!\n'
+          f'Serving {len(bot.guilds)} guilds ' +
+          f'with {len(bot.users)} users!')
     await bot.change_presence(status=discord.Status.online,
                               activity=discord.Game(name='Active!'))
 

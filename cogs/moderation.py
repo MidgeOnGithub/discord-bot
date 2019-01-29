@@ -5,6 +5,7 @@ from discord.ext import commands
 # But commands need @commands.command() instead of @bot.command()
 
 class Moderation:
+    """Provides Discord moderation commands for guild mods/admins."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -19,22 +20,27 @@ class Moderation:
         # @ban.error decorator handles cases involving invalid targets
         if target is None:
             return await ctx.send(f'Usage: `!{w1} @target`')
-        if target == ctx.message.author:
+        elif target == ctx.message.author:
             return await ctx.send(f'You cannot {w1} yourself!')
         # Bots shouldn't be banned/kicked by another bot
-        if target.bot:
-            return await ctx.send(f'{target} is a bot -- I cannot ban them.')
+        elif target.bot:
+            return await ctx.send(f'{target} is a bot ' +
+                                  '-- I cannot ban them.')
         # Check if bot and author have the required guild permissions
         if ban:
-            author_perms = ctx.message.author.guild_permissions.ban_members
+            author_perms = (ctx.message.author.
+                            guild_permissions.ban_members)
             bot_perms = ctx.me.guild_permissions.ban_members
         else:
-            author_perms = ctx.message.author.guild_permissions.kick_members
+            author_perms = (ctx.message.author.
+                            guild_permissions.kick_members)
             bot_perms = ctx.me.guild_permissions.kick_members
         if not author_perms:
-            return await ctx.send(f'You do not have permissions to {w1} members.')
+            return await ctx.send(f'You do not have permissions ' +
+                                  f'to {w1} members.')
         if not bot_perms:
-            return await ctx.send(f'I do not have permissions to {w1} members.')
+            return await ctx.send(f'I do not have permissions to ' +
+                                  f'{w1} members.')
         # Check if the user is already banned
         # If so, give reason and exit
         try:
@@ -47,7 +53,8 @@ class Moderation:
                 reason = f'Reason: `{ban_info[1]}`.'
             else:
                 reason = 'No reason was given.'
-            return await ctx.send(f'{ban_info[0]} was already banned.\n{reason}')
+            return await ctx.send(f'{ban_info[0]} was already banned.',
+                                  f'{reason}')
         except discord.NotFound:
             pass
         # A ban/kick fails if target has a "higher" role than the bot
@@ -57,18 +64,37 @@ class Moderation:
             else:
                 await ctx.guild.kick(target)
         except discord.Forbidden:
-            return await ctx.send(f'I cannot {w1} {target} due to their elevated role(s).')
+            return await ctx.send(f'I cannot {w1} {target} ' +
+                                  'due to their elevated role(s).')
         # Notify both target and channel upon ban/kick completion
-        msg1 = f'You have been {w2} from {ctx.guild.name}!'
-        await target.send(msg1)
-        msg2 = f'{target} was {w2}!'
-        await ctx.send(msg2)
+        try:
+            await ctx.message.add_reaction('👍')
+        except discord.Forbidden:
+            await ctx.send(f'{target} was {w2}.')
+        return
 
     @commands.command()
     async def ban(self, ctx, target: discord.User = None,
-                  reason=None):
+                  reason: str = None):
+        """
+        Command to ban a user from a guild in which the command is sent.
+
+        Required Permissions:
+        `Ban Members`
+
+        Optional Permissions:
+        `Add Reactions`
+
+        Command Usage:
+        `ban <user#0000> <OPTIONAL: ban reason to log in guild audit>`
+        """
         # Call ban_kick with ban set to True
         await self.ban_kick(ctx, target, reason, True)
+        try:
+            await ctx.message.add_reaction('👍')
+        except discord.Forbidden:
+            await ctx.send(f'{target} was banned.')
+        return
 
     # Use a local error handler to catch errors in command's invocation
     @ban.error
@@ -81,8 +107,25 @@ class Moderation:
     @commands.command()
     async def kick(self, ctx, target: discord.User = None,
                    reason=None):
-        # Call ban_kick without setting ban to True
+        """
+        Command to kick a user from a guild in which the command is sent.
+        This removes them but does not prevent re-entry.
+
+        Required Permissions:
+        `Kick Members`
+
+        Optional Permissions:
+        `Add Reactions`
+
+        Command Usage:
+        `kick <user#0000>`
+        """
         await self.ban_kick(ctx, target, reason)
+        try:
+            await ctx.message.add_reaction('👍')
+        except discord.Forbidden:
+            await ctx.send(f'{target} was kicked.')
+        return
 
     # Because @<command>.error handlers are local, kick needs a "dummy"
     @kick.error
@@ -92,7 +135,18 @@ class Moderation:
     # Clear a given amount of messages from channel
     @commands.command(aliases=['purge'])
     async def clear(self, ctx, amount: int):
-        ## Should implement a way to handle `MissingRequiredArgument`
+        """
+        Command to clear/purge an amount of messages from the channel.
+        This removes them but does not prevent re-entry.
+
+        Required Permissions:
+        `Manage Messages`
+
+        Command Usage:
+        `clear <amount of messages>`
+        `purge <amount of messages>`
+        """
+        # TODO: Handle `MissingRequiredArgument`
         amount = int(amount)
         # Check that the user entered an amount > 0
         if amount < 1:
@@ -104,17 +158,13 @@ class Moderation:
         author_perms = ctx.message.author.guild_permissions.manage_messages
         bot_perms = ctx.me.guild_permissions.manage_messages
         if not author_perms:
-            return await ctx.send(f'You do not have the `Manage Messages` permission in this channel.')
+            return await ctx.send('You need the `Manage Messages` ' +
+                                  'permission in this channel.')
         if not bot_perms:
-            return await ctx.send(f'I do not have the `Manage Messages` permission in this channel.')
+            return await ctx.send('I need the `Manage Messages` ' +
+                                  'permission in this channel.')
         # Delete the messages
         await ctx.channel.purge(limit=amount)
-
-    # Delete a passed message (can only be invoked by other commands)
-    async def delete(self, ctx):
-        if not ctx.me.guild_permissions.manage_messages:
-            return await ctx.send(f'I need the `Manage Messages` channel permission before I can process this command.')
-        await ctx.message.delete()
 
 
 def setup(bot):

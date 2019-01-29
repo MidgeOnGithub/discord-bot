@@ -5,6 +5,7 @@ from discord.ext import commands
 # But commands need @commands.command() instead of @bot.command()
 
 class Stats:
+    """Provides simple statistics commands."""
     def __init__(self, bot):
         self.bot = bot
 
@@ -13,7 +14,7 @@ class Stats:
         """
         Gets and returns information about a guild member,
         either the invoker or a specified target.
-        
+
         Command usage:
         `user <targetwith#discriminator>`
         """
@@ -22,7 +23,7 @@ class Stats:
         if target is None:
             target = ctx.message.author
             p1, p2 = 'Your', 'You'
-        elif target.bot:  # Assume command won't be invoked by a bot
+        elif target.bot:
             p1, p2 = 'Its', 'It'
         else:
             p1, p2 = 'Their', 'They'
@@ -43,7 +44,7 @@ class Stats:
         else:
             bot_msg = ''
         # Send the message
-        await ctx.send(
+        return await ctx.send(
             f'{nick}\'s full username is {username}.'
             f'{p2} joined at {join_time}.'
             f'{r_msg}'
