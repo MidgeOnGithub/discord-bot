@@ -1,5 +1,6 @@
 # Editor/IDE files
 .vscode/
+.vs/
 .idea/
 
 # Credentials / passwords

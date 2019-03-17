@@ -5,40 +5,44 @@ from discord.ext import commands
 
 import botcredentials
 
-# Set command prefix and a Status indicating initialization
-bot = commands.Bot(command_prefix='!',
-                   status=discord.Status.idle,
-                   activity=discord.Game(name='Booting...'))
 
-# Store the bot's launch time
-bot.start_time = datetime.utcnow()
+# TODO: Per-guild prefixes
+def get_prefix(bot, message):
+    """Get the bot's command prefix."""
+    prefix = '!'
 
-@bot.event
-async def on_ready():
-    # Once ready, give summary info and change Status
-    print(f'Now online as {bot.user}. Ready to go!\n'
-          f'Serving {len(bot.guilds)} guilds ' +
-          f'with {len(bot.users)} users!')
-    await bot.change_presence(status=discord.Status.online,
-                              activity=discord.Game(name='Active!'))
-
-@bot.event
-async def on_message(message):
-    # Ignore messages from self, otherwise process as usual
-    if message.author == bot.user:
-        return
-    await bot.process_commands(message)
+    # If in a guild, we allow for the user to mention us or use any of the prefixes in our list.
+    return commands.when_mentioned_or(*prefix)(bot, message)
 
 
-# A list of cog names: currently requires manual entry
-# owner cog contains commands to load and unload extensions
-default = ['owner', 'live', 'moderation', 'stats']
+# TODO: Configurable extensions?
+def get_extensions():
+    # A list of default cog names: currently requires manual entry
+    default = ['owner', 'error_handler', 'moderation', 'live', 'stats']
+    all_extensions = default
+    return all_extensions
 
-# TODO: Optional cogs should be added by configuration/settings
-extensions = default
 
-# Only run the bot if this file is __main__
-if __name__ == '__main__':
+def main():
+    # Set command prefix and a Status indicating initialization
+    bot = commands.Bot(command_prefix=get_prefix, status=discord.Status.idle,
+                       activity=discord.Game(name='Booting...'))
+
+    # Store the bot's launch time
+    bot.start_time = datetime.utcnow()
+
+    @bot.event
+    async def on_ready():
+        # Once ready, give summary info and change Status
+        print(f'Now online as {bot.user}. Ready to go!\n'
+              f'Serving {len(bot.guilds)} guilds with {len(bot.users)} users!')
+        await bot.change_presence(status=discord.Status.online,
+                                  activity=discord.Game(name='Active!'))
+
+    # TODO: Optional cogs should be added by configuration/settings
+    extensions = get_extensions()
+
+    # Only run the bot if this file is __main__
     for ext in extensions:
         try:
             # Assume an unchanged relative path to cog files
@@ -46,5 +50,9 @@ if __name__ == '__main__':
         except (discord.ClientException, ImportError) as err:
             print(f'{ext} not loaded. [{err}]')
 
-# Start the bot
-bot.run(botcredentials.TOKEN)
+    # Start the bot
+    bot.run(botcredentials.TOKEN, bot=True, reconnect=True)
+
+
+if __name__ == '__main__':
+    main()
