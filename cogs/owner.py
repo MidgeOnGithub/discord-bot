@@ -57,7 +57,6 @@ class Owner(commands.Cog):
         else:
             return await ctx.send(f'{cog} reloaded.')
 
-
     def _cog_file_available(self, cog):
         """Determines if a cog file exists within the program's known directories."""
         return cog in self._cog_files()
@@ -85,6 +84,11 @@ class Owner(commands.Cog):
         except commands.NotOwner:
             ctx.send(f'Only the bot owner may issue this command.')
 
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def other_command_test(self, ctx):
+        command = self.bot.mod_cog.purge
+        await ctx.invoke(command, 2)
 
 
 def setup(bot):

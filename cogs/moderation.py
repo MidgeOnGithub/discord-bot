@@ -125,6 +125,34 @@ class Moderation(commands.Cog):
         # Delete the messages
         await ctx.channel.purge(limit=amount)
 
+    # TODO: Finish up the role command(s)
+    @commands.command()
+    async def role(self, ctx, target: discord.User = None):
+        pass
+
+    @staticmethod
+    async def change_role(member: discord.Member, role,
+                          remove=False, reason=None):
+        """Adds or removes a role from a guild member."""
+        if role in member.roles:
+            if remove:
+                try:
+                    await member.remove_roles(role, reason)
+                except discord.Forbidden:
+                    print(f'Cannot alter the `{role}` role due to elevated permissions.')
+            else:
+                # No need to add the role if member already has it
+                print(f'{member.display_name} already has the `{role}` role -- no change.')
+        else:
+            if remove:
+                # No need to remove role if member does not have it
+                print(f'{member.display_name} does not have the `{role}` role -- no change.')
+            else:
+                try:
+                    await member.add_roles(role)
+                except discord.Forbidden:
+                    print(f'Cannot alter the `{role}` role due to elevated permissions.')
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
