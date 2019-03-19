@@ -6,6 +6,9 @@
 # Credentials / passwords
 botcredentials.py
 
+# Program data
+data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

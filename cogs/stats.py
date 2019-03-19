@@ -9,10 +9,28 @@ class Stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(alias='bot')
     async def info(self, ctx):
+        """
+        Display basic bot information.
+
+        Command Usage:
+        `info`
+        `bot`
+        """
         await ctx.send(f'A simple python Discord bot scripted by Midge.\n'
-                       f'https://github.com/MidgeOnGithub/discord-bot')
+                       f'<https://github.com/MidgeOnGithub/discord-bot>')
+
+    @commands.command()
+    async def ping(self, ctx):
+        """
+        "Pong!" + latency.
+
+        Command Usage:
+        `ping`
+        """
+        ping = round(self.bot.latency * 1000)
+        await ctx.channel.send(f'Pong! My ping is {ping} ms.')
 
     @commands.command()
     async def uptime(self, ctx):
@@ -27,28 +45,27 @@ class Stats(commands.Cog):
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)
         minutes, seconds = divmod(remainder, 60)
         days, hours = divmod(hours, 24)
-        d_msg = '' if (days < 1) else f'{days} days'
-        await ctx.send(f'Uptime: {d_msg}{hours} hours, {minutes} minutes, {seconds} seconds.')
+        days_msg = '' if (days < 1) else f'{days} days'
+        await ctx.send(f'Uptime: {days_msg}{hours} hours, {minutes} minutes, {seconds} seconds.')
 
-    @commands.command()
+    @commands.command(name='who is')
     @commands.guild_only()
-    async def user(self, ctx, target: discord.Member = None):
+    async def who_is(self, ctx, *, target: discord.Member = None):
         """
-        Gets and returns information about a guild member,
-        either the invoker or a specified target.
+        Gets and returns information about a guild member.
+        If no target is specified, the target becomes the invoker.
 
-        Command usage:
-        `user <target_with#discriminator>`
+        Command Usage:
+        `who_is <target_with#discriminator>`
         """
-        # Determine who is the target, set pronouns accordingly
-        # If no target is specified, invoking member is target
+        # Set words according to who is the target.
         if target is None:
             target = ctx.message.author
-            p1, p2 = 'Your', 'You'
+            p1, p2, p3 = 'Your', 'You', 'have'
         elif target.bot:
-            p1, p2 = 'Its', 'It'
+            p1, p2, p3 = 'Its', 'It', 'has'
         else:
-            p1, p2 = 'Their', 'They'
+            p1, p2, p3 = 'Their', 'They', 'have'
         # Determine certain properties and text regarding the target
         nick = target.display_name
         username = f'{target.name}#{target.discriminator}'
@@ -59,18 +76,16 @@ class Stats(commands.Cog):
             r_msg = f'{p1} top role is {role}.'
         else:
             # Using this message prevents pinging @everyone
-            r_msg = f'{p2} has no special roles.'
+            r_msg = f'{p2} {p3} no special roles.'
         # Point out if the member is a bot
         if target.bot:
             bot_msg = f'{nick} is a bot.'
         else:
             bot_msg = ''
         # Send the message
-        return await ctx.send(
-            f'Full username: {username}.\n'
-            f'{p2} joined at {join_time}.\n'
-            f'{r_msg} {bot_msg}'
-        )
+        await ctx.send(f'Full username: {username}.\n'
+                       f'{p2} joined at {join_time}.\n'
+                       f'{r_msg} {bot_msg}')
 
 
 def setup(bot):

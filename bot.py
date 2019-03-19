@@ -7,7 +7,7 @@ import botcredentials
 
 
 # TODO: Per-guild prefixes
-def get_prefix(bot, message):
+def _get_prefix(bot, message):
     """Get the bot's command prefix."""
     prefix = '!'
 
@@ -16,7 +16,7 @@ def get_prefix(bot, message):
 
 
 # TODO: Configurable extensions?
-def get_extensions():
+def _get_extensions():
     # A list of default cog names: currently requires manual entry
     default = ['owner', 'error_handler', 'moderation', 'live', 'stats']
     all_extensions = default
@@ -24,7 +24,7 @@ def get_extensions():
 
 
 # Set command prefix and a Status indicating initialization
-bot = commands.Bot(command_prefix=get_prefix, status=discord.Status.idle,
+bot = commands.Bot(command_prefix=_get_prefix, status=discord.Status.idle,
                    activity=discord.Game(name='Booting...'))
 
 # Store the bot's launch time
@@ -40,7 +40,7 @@ async def on_ready():
                               activity=discord.Game(name='Active!'))
 
 # TODO: Optional cogs should be added by configuration/settings
-extensions = get_extensions()
+extensions = _get_extensions()
 
 # Only run the bot if this file is __main__
 for ext in extensions:

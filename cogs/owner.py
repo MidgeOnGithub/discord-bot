@@ -17,7 +17,7 @@ class Owner(commands.Cog):
         Load a cog.
 
         Command Usage:
-        `load moderation`
+        `load <cog>`
         """
         try:
             self.bot.load_extension('cogs.' + cog)
@@ -32,7 +32,7 @@ class Owner(commands.Cog):
         Unload a cog.
 
         Command Usage:
-        `unload stats`
+        `unload <cog>`
         """
         try:
             self.bot.unload_extension('cogs.' + cog)
@@ -47,7 +47,7 @@ class Owner(commands.Cog):
         Reload a cog.
 
         Command Usage:
-        `reload live`
+        `reload <cog>`
         """
         try:
             self.bot.unload_extension(cog)
@@ -58,12 +58,16 @@ class Owner(commands.Cog):
             return await ctx.send(f'{cog} reloaded.')
 
     def _cog_file_available(self, cog):
-        """Determines if a cog file exists within the program's known directories."""
+        """
+        Determines if a cog file exists within the program's known directories.
+        """
         return cog in self._cog_files()
 
     @staticmethod
     def _cog_files():
-        """Returns a list of cog files within the program's known directories."""
+        """
+        Returns a list of cog files within the program's known directories.
+        """
         cogs = [path.basename(f) for f in glob("cogs/*.py")]
         return ["cogs." + path.splitext(f)[0] for f in cogs]
 
@@ -83,12 +87,6 @@ class Owner(commands.Cog):
             await discord.Client.close(self.bot)
         except commands.NotOwner:
             ctx.send(f'Only the bot owner may issue this command.')
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def other_command_test(self, ctx):
-        command = self.bot.mod_cog.purge
-        await ctx.invoke(command, 2)
 
 
 def setup(bot):

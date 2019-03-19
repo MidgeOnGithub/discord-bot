@@ -8,9 +8,11 @@ class Moderation(commands.Cog):
         self.bot = bot
 
     @staticmethod
-    async def ban_kick(ctx, target: discord.User,
-                       reason=None, ban=False):
-        """Kicks or bans members according to the invoked command."""
+    async def _ban_kick(ctx, target: discord.User,
+                        reason=None, ban=False):
+        """
+        Kicks or bans members with respect to `ban`
+        """
         # Set verbs appropriately
         if ban:
             w1, w2 = 'ban', 'banned'
@@ -27,7 +29,7 @@ class Moderation(commands.Cog):
             return await ctx.send(f'You do not have permissions to {w1} members.')
         elif not bot_perms:
             return await ctx.send(f'I do not have permissions to {w1} members.')
-        # Checks for misuses beyond what handlers and permissions checks catch
+        # Check for misuses beyond what handlers and permissions checks catch
         if target is None:
             return await ctx.send(f'Usage: `!{w1} @target`')
         elif target == ctx.message.author:
@@ -77,7 +79,7 @@ class Moderation(commands.Cog):
         Command Usage:
         `ban <user#0000> <OPTIONAL: ban reason to log in guild audit>`
         """
-        await self.ban_kick(ctx, target, reason, ban=True)
+        await self._ban_kick(ctx, target, reason, ban=True)
 
     @commands.command()
     async def kick(self, ctx, target: discord.User, reason=None):
@@ -94,14 +96,12 @@ class Moderation(commands.Cog):
         Command Usage:
         `kick <user#0000>`
         """
-        await self.ban_kick(ctx, target, reason)
+        await self._ban_kick(ctx, target, reason)
 
-    # Clear a given amount of messages from channel
     @commands.command(aliases=['clear'])
     async def purge(self, ctx, amount: int):
         """
         Purge an amount of messages from the channel.
-        This removes them but does not prevent re-entry.
 
         Required Permissions:
         `Manage Messages`
@@ -126,14 +126,18 @@ class Moderation(commands.Cog):
         await ctx.channel.purge(limit=amount)
 
     # TODO: Finish up the role command(s)
-    @commands.command()
-    async def role(self, ctx, target: discord.User = None):
-        pass
+    # @commands.command()
+    # async def role(self, ctx, target: discord.User = None):
+    #     """
+    #     """
+    #     pass
 
     @staticmethod
-    async def change_role(member: discord.Member, role,
+    async def _change_role(member: discord.Member, role,
                           remove=False, reason=None):
-        """Adds or removes a role from a guild member."""
+        """
+        Adds or removes a role from a guild member.
+        """
         if role in member.roles:
             if remove:
                 try:

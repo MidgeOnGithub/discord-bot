@@ -15,7 +15,7 @@ class ErrorHandler(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
         """
-        Event triggered when an error is raised while invoking a command.
+        Event triggered when an error is raised during a command.
         """
 
         # Prevent commands with local handlers being handled here.
@@ -34,7 +34,8 @@ class ErrorHandler(commands.Cog):
 
         if isinstance(error, ignored):
             return
-        # TODO: Create more specific messages for some things currently handled
+        # TODO: Create more specific messages for some things currently
+        #  handled in standard_notification
         elif isinstance(error, standard_notification):
             if isinstance(error, commands.MissingRequiredArgument):
                 return await ctx.send(f'Required argument `{error.param}` not given.')
