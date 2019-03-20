@@ -41,7 +41,7 @@ class Moderation(commands.Cog):
             # Collect a BanEntry tuple for the user, if it exists,
             # index 0 contains username, index 1 contains reason
             # If BanEntry doesn't exist, discord.NotFound error raises
-            ban_info = await ctx.guild.get_ban(target)
+            ban_info = await ctx.guild.fetch_ban(target)
             # By default, ban audit reason is None
             if ban_info[1]:
                 reason = f'Reason: `{ban_info[1]}`.'
@@ -96,7 +96,7 @@ class Moderation(commands.Cog):
         Command Usage:
         `kick <user#0000>`
         """
-        await self._ban_kick(ctx, target, reason)
+        await self._ban_kick(ctx, target, reason, ban=False)
 
     @commands.command(aliases=['clear'])
     async def purge(self, ctx, amount: int):
@@ -134,7 +134,7 @@ class Moderation(commands.Cog):
 
     @staticmethod
     async def _change_role(member: discord.Member, role,
-                          remove=False, reason=None):
+                           remove=False, reason=None):
         """
         Adds or removes a role from a guild member.
         """

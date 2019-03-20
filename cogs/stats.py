@@ -9,7 +9,7 @@ class Stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(alias='bot')
+    @commands.command(alias=('bot', 'bot_info'))
     async def info(self, ctx):
         """
         Display basic bot information.
@@ -48,15 +48,16 @@ class Stats(commands.Cog):
         days_msg = '' if (days < 1) else f'{days} days'
         await ctx.send(f'Uptime: {days_msg}{hours} hours, {minutes} minutes, {seconds} seconds.')
 
-    @commands.command(name='who is')
+    @commands.command()
     @commands.guild_only()
-    async def who_is(self, ctx, *, target: discord.Member = None):
+    async def user_info(self, ctx, *, target: discord.Member = None):
         """
         Gets and returns information about a guild member.
         If no target is specified, the target becomes the invoker.
 
         Command Usage:
-        `who_is <target_with#discriminator>`
+        `user_info`
+        `user_info <target_with#discriminator>`
         """
         # Set words according to who is the target.
         if target is None:
@@ -75,13 +76,9 @@ class Stats(commands.Cog):
             role = target.top_role
             r_msg = f'{p1} top role is {role}.'
         else:
-            # Using this message prevents pinging @everyone
             r_msg = f'{p2} {p3} no special roles.'
         # Point out if the member is a bot
-        if target.bot:
-            bot_msg = f'{nick} is a bot.'
-        else:
-            bot_msg = ''
+        bot_msg = f'{nick} is a bot' if target.bot else ''
         # Send the message
         await ctx.send(f'Full username: {username}.\n'
                        f'{p2} joined at {join_time}.\n'
