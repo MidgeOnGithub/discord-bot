@@ -7,6 +7,7 @@ class Owner(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.settings_cog = self.bot.get_cog('Settings')
 
     @commands.command(hidden=True)
     async def cogs(self, ctx):
@@ -58,7 +59,7 @@ class Owner(commands.Cog):
         `reload <cog>`
         """
         try:
-            self.bot.reload_extension(cog)
+            self.bot.reload_extension('cogs.' + cog)
         except commands.ExtensionError as err:
             return await ctx.send(err)
         await ctx.send(f'{cog} reloaded.')
@@ -75,10 +76,13 @@ class Owner(commands.Cog):
         Command Usage:
         `shutdown`
         """
-        try:
-            await discord.Client.close(self.bot)
-        except commands.NotOwner:
-            await ctx.send(f'Only the bot owner may issue this command.')
+        await discord.Client.close(self.bot)
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def set_admin_role(self, ctx, target: discord.User = None):
+        pass
+
 
 
 def setup(bot):

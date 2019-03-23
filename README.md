@@ -29,8 +29,9 @@ For now, the direction is to check the code itself -- purpose, implementation, a
 > * 'Core':
   >   * error_handler
   >   * owner
-  >   * moderation
+  >   * settings
 > * live
+> * moderation
 > * stats
 
 ### Important Clone/Fork Information

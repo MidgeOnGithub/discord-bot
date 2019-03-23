@@ -1,14 +1,15 @@
 import traceback
 import sys
+
 import discord
 from discord.ext import commands
 
-"""
-Adapted from https://gist.github.com/EvieePy/7822af90858ef65012ea500bcecf1612
-"""
-
 
 class ErrorHandler(commands.Cog):
+    """
+    A cog which gives default responses to certain exceptions.
+    Adapted from https://gist.github.com/EvieePy/7822af90858ef65012ea500bcecf1612.
+    """
     def __init__(self, bot):
         self.bot = bot
 
@@ -36,6 +37,8 @@ class ErrorHandler(commands.Cog):
             return
         # TODO: Create more specific messages for some things currently
         #  handled in standard_notification
+        elif isinstance(error, discord.HTTPException):
+            return await ctx.send(f'An HTTP exception occurred... try again later!')
         elif isinstance(error, standard_notification):
             if isinstance(error, commands.MissingRequiredArgument):
                 return await ctx.send(f'Required argument `{error.param}` not given.')
