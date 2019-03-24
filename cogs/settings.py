@@ -72,17 +72,22 @@ class Settings(commands.Cog):
         Command Usage:
         `settings clear`
         """
-        try:
-            setting = self.bot.settings[setting_to_clear]
-            if isinstance(setting, list):
-                setting.clear()
-                if setting == 'prefixes':
-                    setting.append('!')
-            else:
-                return await ctx.send(f'No change since {setting_to_clear}'
-                                      f'is a single-item setting.')
-        except KeyError:
-            return await ctx.send('Bad setting name')
+        if setting_to_clear == 'prefixes':
+            setting = self.bot.settings.prefixes
+        elif setting_to_clear == 'game_filter':
+            setting = self.bot.settings.game_filter
+        elif setting_to_clear == 'member_blacklist':
+            setting = self.bot.settings.member_blacklist
+        elif setting_to_clear == 'member_whitelist':
+            setting = self.bot.settings.member_whitelist
+        else:
+            return await ctx.send('Invalid setting to be cleared.')
+        if isinstance(setting, list):
+            setting.clear()
+            if setting_to_clear == 'prefixes':
+                setting.append('!')
+        else:
+            return await ctx.send(f'No change. {setting_to_clear} is a single-item setting.')
         await ctx.send(f'Changes saved. `{setting_to_clear}` cleared/reset.')
 
     @settings.command()

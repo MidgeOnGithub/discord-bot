@@ -118,5 +118,6 @@ class Live(commands.Cog):
         await ctx.send(f'Live role member whitelist:\n'
                        f'```{", ".join(self.bot.settings.member_whitelist)}```')
 
+
 def setup(bot):
     bot.add_cog(Live(bot))
