@@ -108,9 +108,10 @@ class Settings(commands.Cog):
         await ctx.send('Changes saved. Available prefixes:\n'
                        f'```{", ".join(active_prefixes)}```')
 
+    # TODO: Fix the WET: admin_role, live_role
     @settings.command()
     @commands.guild_only()
-    async def admin_role(self, ctx, *, new_role_name: str):
+    async def admin_role(self, ctx, new_role_name: str):
         """
         Command to change the admin role.
 
@@ -124,6 +125,23 @@ class Settings(commands.Cog):
             current_role_name = new_role_name
         await self.update_settings_file()
         await ctx.send(f'Changes saved. Admin role: `{current_role_name}`')
+
+    @settings.command()
+    @commands.guild_only()
+    async def live_role(self, ctx, new_role_name: str):
+        """
+        Command to change the live role.
+
+        Command Usage:
+        `settings live_role`
+        """
+        current_role_name = self.bot.settings.live_role
+        if new_role_name == current_role_name:
+            return await ctx.send(f'No change.')
+        else:
+            current_role_name = new_role_name
+        await self.update_settings_file()
+        await ctx.send(f'Changes saved. Live role: `{current_role_name}`')
 
     # TODO: Fix the WET: game_filter, member_*list commands
     @settings.command()
