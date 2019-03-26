@@ -3,12 +3,13 @@ import glob
 import os
 from pathlib import Path
 
+import aiohttp
 import discord
 from discord.ext import commands
 
 import utils.data_io
 
-import botcredentials
+from botcredentials import TOKEN
 
 
 # TODO: Per-guild prefixes
@@ -70,6 +71,7 @@ bot.start_time = datetime.datetime.utcnow()
 
 @bot.event
 async def on_ready():
+    bot.session = aiohttp.ClientSession()
     # Once ready, give summary info and change Status
     print(f'Now online as {bot.user}. Ready to go!\n'
           f'Serving {len(bot.guilds)} guilds with {len(bot.users)} users!')
@@ -92,4 +94,4 @@ bot.settings = settings
 bot.settings_file = settings_file_location
 
 # Start the bot
-bot.run(botcredentials.TOKEN, bot=True, reconnect=True)
+bot.run(TOKEN, bot=True, reconnect=True)
