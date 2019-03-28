@@ -1,5 +1,6 @@
 import datetime
 import glob
+import logging
 import os
 from pathlib import Path
 
@@ -34,9 +35,9 @@ def _get_startup_extensions():
     Get the bot's startup cogs.
     """
     # A list of default cog names: currently requires manual entry
-    default = [*bot.core_cogs, 'moderation', 'live', 'stats']
-    all_extensions = default
-    return all_extensions
+    default = [*bot.core_cogs, 'moderation']
+    all_extensions = [*default, 'live', 'stats', 'twitch']
+    return default
 
 
 def cog_file_available(self, cog):
@@ -53,6 +54,8 @@ def get_cog_files():
     cogs = [os.path.basename(f) for f in glob.glob("cogs/*.py", recursive=True)]
     return [f[:len(f)-3] for f in cogs]
 
+
+logging.basicConfig(level=logging.INFO)
 
 settings_file_location = 'data/settings.json'
 if not Path(settings_file_location).is_file():
@@ -78,6 +81,10 @@ async def on_ready():
     await bot.change_presence(status=discord.Status.online,
                               activity=discord.Game(name='Active!'))
 
+
+bot.settings = settings
+bot.settings_file = settings_file_location
+
 extensions = _get_startup_extensions()
 
 for ext in extensions:
@@ -89,9 +96,6 @@ for ext in extensions:
 # Don't bother starting if a core cog fails to load
 if not all(cog in [cog[5:] for cog in set(bot.extensions.keys())] for cog in bot.core_cogs):
     exit(1)
-
-bot.settings = settings
-bot.settings_file = settings_file_location
 
 # Start the bot
 bot.run(TOKEN, bot=True, reconnect=True)

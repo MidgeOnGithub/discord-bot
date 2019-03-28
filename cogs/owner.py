@@ -1,13 +1,17 @@
 import discord
 from discord.ext import commands
 
+import utils.checks
+
 
 class Owner(commands.Cog):
     """Owner-only actions for core bot functionalities and features."""
 
     def __init__(self, bot):
         self.bot = bot
-        self.settings_cog = self.bot.get_cog('Settings')
+
+    async def cog_check(self, ctx):
+        return await utils.checks.is_admin_or_owner(ctx)
 
     @commands.command(hidden=True)
     async def cogs(self, ctx):
@@ -28,6 +32,10 @@ class Owner(commands.Cog):
         Command Usage:
         `load <cog>`
         """
+        if cog == 'live':
+            await ctx.send('I need the `manage_roles` permission for this cog to work properly.')
+            # TODO: see print below
+            print('DEV NOTE: Change this message to a check in an eventual `enable` command in moderation cog.')
         try:
             self.bot.load_extension('cogs.' + cog)
         except commands.ExtensionError as err:
@@ -76,13 +84,9 @@ class Owner(commands.Cog):
         Command Usage:
         `shutdown`
         """
+        await ctx.send('Bye, bye!')
+        self.bot.session.close()
         await discord.Client.close(self.bot)
-
-    @commands.command(hidden=True)
-    @commands.is_owner()
-    async def set_admin_role(self, ctx, target: discord.User = None):
-        pass
-
 
 
 def setup(bot):

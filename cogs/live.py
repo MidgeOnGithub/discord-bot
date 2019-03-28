@@ -33,8 +33,8 @@ class Live(commands.Cog):
         else:
             live = False
 
-        has_role = live_role in after.roles
         # Remove the role if they are no longer streaming
+        has_role = live_role in after.roles
         if not live:
             if has_role:
                 print(f'Role should be removed ({after.name} no longer live).')
@@ -43,6 +43,7 @@ class Live(commands.Cog):
                 print(f'{after.name} didn\'t have role and is offline. No action.')
                 return
         print(f'Activity details: {after.activity.details}.')
+        
         # From here, member is definitely live, so just
         # assign the role if they are eligible and don't have it,
         # remove the role if they are no longer eligible
@@ -63,8 +64,6 @@ class Live(commands.Cog):
             else:
                 print(f'Role should be added to {after.name}.')
                 return await self._live_toggle(after, live_role, remove=False)
-        print(f'This print line shouldn\'t be reached. {after.name}...\n'
-              f'Had role? {has_role}. Live? {live}. Eligible? {eligible}.')
 
     @staticmethod
     async def _live_toggle(target: discord.Member,

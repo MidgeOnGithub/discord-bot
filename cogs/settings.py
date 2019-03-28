@@ -1,8 +1,7 @@
-import asyncio
-
 import discord
 from discord.ext import commands
 
+import utils.checks
 import utils.data_io
 
 
@@ -10,22 +9,17 @@ class Settings(commands.Cog):
     """Provides an interface to check and update bot settings."""
     def __init__(self, bot):
         self.bot = bot
+        self.settings_map = {
+            'prefixes': self.bot.settings.prefixes,
+            'admin_role': self.bot.settings.admin_role,
+            'live_role': self.bot.settings.live_role,
+            'game_filter': self.bot.settings.game_filter,
+            'member_blacklist': self.bot.settings.member_blacklist,
+            'member_whitelist': self.bot.settings.member_whitelist,
+        }
 
     async def cog_check(self, ctx):
-        """
-        A check that allows only bot owner or guild admin to invoke commands.
-        """
-        author = ctx.message.author
-        # Do the easy check first
-        if await self.bot.is_owner(ctx.message.author):
-            return True
-        # Then the slower check
-        admin_role = self.bot.settings['admin_role']
-        is_admin = discord.utils.get(author.roles, name=admin_role)
-        if is_admin:
-            return True
-        else:
-            return False
+        return await utils.checks.is_admin_or_owner(ctx)
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
@@ -70,18 +64,9 @@ class Settings(commands.Cog):
         Command to clear a setting of potentially multiple items.
 
         Command Usage:
-        `settings clear`
+        `settings clear <setting_to_clear>`
         """
-        if setting_to_clear == 'prefixes':
-            setting = self.bot.settings.prefixes
-        elif setting_to_clear == 'game_filter':
-            setting = self.bot.settings.game_filter
-        elif setting_to_clear == 'member_blacklist':
-            setting = self.bot.settings.member_blacklist
-        elif setting_to_clear == 'member_whitelist':
-            setting = self.bot.settings.member_whitelist
-        else:
-            return await ctx.send('Invalid setting to be cleared.')
+        setting = self.settings_map[setting_to_clear]
         if isinstance(setting, list):
             setting.clear()
             if setting_to_clear == 'prefixes':
@@ -97,7 +82,7 @@ class Settings(commands.Cog):
         Command to add -- or if already present, remove -- a command prefix.
 
         Command Usage:
-        `settings prefix`
+        `settings prefixes <prefix>`
         """
         active_prefixes = self.bot.settings.prefixes
         if prefix in active_prefixes:
@@ -108,7 +93,6 @@ class Settings(commands.Cog):
         await ctx.send('Changes saved. Available prefixes:\n'
                        f'```{", ".join(active_prefixes)}```')
 
-    # TODO: Fix the WET: admin_role, live_role
     @settings.command()
     @commands.guild_only()
     async def admin_role(self, ctx, new_role_name: str):
@@ -116,15 +100,10 @@ class Settings(commands.Cog):
         Command to change the admin role.
 
         Command Usage:
-        `settings admin_role`
+        `settings admin_role <new_role_name>`
         """
-        current_role_name = self.bot.settings.admin_role
-        if new_role_name == current_role_name:
-            return await ctx.send(f'No change.')
-        else:
-            current_role_name = new_role_name
-        await self.update_settings_file()
-        await ctx.send(f'Changes saved. Admin role: `{current_role_name}`')
+        if await self._change_single_item_setting(ctx, 'admin_role', new_role_name):
+            await ctx.send(f'Changes saved. Admin role: `{self.bot.settings.admin_role}`')
 
     @settings.command()
     @commands.guild_only()
@@ -133,15 +112,25 @@ class Settings(commands.Cog):
         Command to change the live role.
 
         Command Usage:
-        `settings live_role`
+        `settings live_role <new_role_name>`
         """
-        current_role_name = self.bot.settings.live_role
-        if new_role_name == current_role_name:
-            return await ctx.send(f'No change.')
+        if await self._change_single_item_setting(ctx, 'live_role', new_role_name):
+            await ctx.send(f'Changes saved. Live role: `{self.bot.settings.live_role}`')
+
+    async def _change_single_item_setting(self, ctx, setting_to_change: str, new_value: str):
+        """
+        Changes a single-item setting's value, unless the same value is given.
+        Returns true if the value was new.
+        """
+        setting = self.settings_map[setting_to_change]
+        if isinstance(setting, list):
+            return await ctx.send('Bad argument passed to _change_single_item_setting.')
+        if setting == new_value:
+            return await ctx.send('No change.')
         else:
-            current_role_name = new_role_name
+            self.settings_map[setting] = new_value
         await self.update_settings_file()
-        await ctx.send(f'Changes saved. Live role: `{current_role_name}`')
+        return True
 
     # TODO: Fix the WET: game_filter, member_*list commands
     @settings.command()
@@ -151,17 +140,17 @@ class Settings(commands.Cog):
         Command to add -- or if already present, remove -- a game from the live role game filter.
 
         Command Usage:
-        `settings game_filter`
+        `settings game_filter <game>`
         """
-        current_filter = self.bot.settings.game_filter
-        if game not in current_filter:
-            current_filter.append(game)
-        else:
-            current_filter.remove(game)
+        await self._setting_list_item_toggle(game, self.bot.settings.game_filter)
         await self.update_settings_file()
-        await ctx.send('Changes saved. Note that I don\'t check if you spelled it correctly!\n'
-                       'Live role game filter:\n'
-                       f'```{", ".join(current_filter)}```')
+        if self.bot.settings.game_filter:
+            msg = ', '.join([game for game in self.bot.settings.game_filter])
+        else:
+            msg = 'No games listed.'
+        await ctx.send(f'Changes saved. Note that I don\'t check if you spelled it correctly!\n'
+                       f'Live role game filter:\n'
+                       f'```{msg}```')
 
     # TODO: Consider: take a str instead; check it's a member, then add
     #  But if it can't find the member, it tries to remove the name
@@ -174,16 +163,17 @@ class Settings(commands.Cog):
         Command to add -- or if already present, remove -- a member from the live role whitelist.
 
         Command Usage:
-        `settings member_blacklist`
+        `settings member_blacklist <member>`
         """
-        current_filter = self.bot.settings.member_blacklist
-        if member not in current_filter:
-            current_filter.append(member.name)
+        await self._setting_list_item_toggle(member.id, self.bot.settings.member_blacklist)
+        member_list = [await commands.MemberConverter().convert(ctx, str(num))
+                       for num in self.bot.settings.member_blacklist]
+        if member_list:
+            msg = ', '.join([mem.display_name for mem in member_list])
         else:
-            current_filter.remove(member.name)
-        await self.update_settings_file()
-        await ctx.send(f'Changes saved. Live role blacklist:\n'
-                       f'```{", ".join(current_filter)}```')
+            msg = 'No members listed.'
+        await ctx.send(f'Changes saved. Live role guild blacklist:\n'
+                       f'```{msg}```')
 
     @settings.command()
     @commands.guild_only()
@@ -192,25 +182,37 @@ class Settings(commands.Cog):
         Command to add -- or if already present, remove -- a member from the live role whitelist.
 
         Command Usage:
-        `settings member_whitelist`
+        `settings member_whitelist <member>`
         """
-        current_filter = self.bot.settings.member_whitelist
-        name = member.name
-        if name not in current_filter:
-            current_filter.append(name)
+        await self._setting_list_item_toggle(member.id, self.bot.settings.member_whitelist)
+        member_list = [await commands.MemberConverter().convert(ctx, str(num))
+                       for num in self.bot.settings.member_whitelist]
+        if member_list:
+            msg = ', '.join([mem.display_name for mem in member_list])
         else:
-            current_filter.remove(name)
+            msg = 'No members listed.'
+        await ctx.send(f'Changes saved. Live role guild whitelist:\n'
+                       f'```{msg}```')
+
+    async def _setting_list_item_toggle(self, item, setting_list: list):
+        """
+        Toggles an item from a settings list of items.
+        Returns a message to return after operation.
+        """
+        if item not in setting_list:
+            setting_list.append(item)
+        else:
+            setting_list.remove(item)
         await self.update_settings_file()
-        await ctx.send(f'Changes saved. Member whitelist:\n'
-                       f'```{", ".join(current_filter)}```')
+        if not setting_list:
+            return
 
     async def update_settings_file(self):
         """
         Saves any changes into the settings file
         """
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(None, utils.data_io.save_settings,
-                                   self.bot.settings, self.bot.settings_file)
+        self.bot.loop.run_in_executor(None, utils.data_io.save_settings,
+                                      self.bot.settings, self.bot.settings_file)
 
 
 def setup(bot):

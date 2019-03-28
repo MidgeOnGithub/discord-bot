@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 
+# TODO: Refactor the IO and save/load so that id = guild ids, etc.
 @dataclass
 class BotSettings(object):
     id = 0
@@ -14,16 +15,7 @@ class BotSettings(object):
     member_whitelist = []
 
 
-default_settings = {
-    # TODO: Refactor the IO and save/load so that id = guild ids, etc.
-    'id': 0,
-    'prefixes': ['!'],
-    'admin_role': 'Mods',
-    'live_role': 'Live',
-    'game_filter': [],
-    'member_blacklist': [],
-    'member_whitelist': []
-}
+default_settings = BotSettings()
 
 
 def save_json(data, file_name: str):
@@ -40,7 +32,7 @@ def save_settings(settings: BotSettings, file_name: str):
         'live_role': settings.live_role,
         'game_filter': settings.game_filter,
         'member_blacklist': settings.member_blacklist,
-        'member_whitelist': settings.member_blacklist
+        'member_whitelist': settings.member_whitelist
     }
     save_json(data, file_name)
 
@@ -66,7 +58,7 @@ def load_settings(file_name: str):
 
 
 def generate_default_settings(file_name: str = '../data/settings.json'):
-    save_json(default_settings, file_name)
+    save_settings(default_settings, file_name)
 
 
 if __name__ == '__main__':

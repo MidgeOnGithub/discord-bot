@@ -1,11 +1,49 @@
 import discord
 from discord.ext import commands
 
+import utils.checks
 
 class Moderation(commands.Cog):
     """Provides Discord moderation commands for guild mods/admins."""
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_permissions(ban_members=True)
+    async def ban(self, ctx, target: discord.User, reason: str = None):
+        """
+        Ban a user from a guild in which the command is sent.
+
+        Required Permissions:
+        `Ban Members`
+
+        Optional Permissions:
+        `Add Reactions`
+
+        Command Usage:
+        `ban <user#0000> <OPTIONAL: ban reason to log in guild audit>`
+        """
+        await self._ban_kick(ctx, target, reason, ban=True)
+
+    @commands.command()
+    @commands.has_permissions(kick_members=True)
+    @commands.bot_has_permissions(kick_members=True)
+    async def kick(self, ctx, target: discord.User, reason=None):
+        """
+        Command to kick a user from a guild in which the command is sent.
+        This removes them but does not prevent re-entry.
+
+        Required Permissions:
+        `Kick Members`
+
+        Optional Permissions:
+        `Add Reactions`
+
+        Command Usage:
+        `kick <user#0000>`
+        """
+        await self._ban_kick(ctx, target, reason, ban=False)
 
     @staticmethod
     async def _ban_kick(ctx, target: discord.User,
@@ -18,24 +56,15 @@ class Moderation(commands.Cog):
             w1, w2 = 'ban', 'banned'
         else:
             w1, w2 = 'kick', 'kicked'
-        # Check if bot and author have the required guild permissions
-        if ban:
-            author_perms = ctx.message.author.guild_permissions.ban_members
-            bot_perms = ctx.me.guild_permissions.ban_members
-        else:
-            author_perms = ctx.message.author.guild_permissions.kick_members
-            bot_perms = ctx.me.guild_permissions.kick_members
-        if not author_perms:
-            return await ctx.send(f'You do not have permissions to {w1} members.')
-        elif not bot_perms:
-            return await ctx.send(f'I do not have permissions to {w1} members.')
-        # Check for misuses beyond what handlers and permissions checks catch
-        if target is None:
-            return await ctx.send(f'Usage: `!{w1} @target`')
-        elif target == ctx.message.author:
+        # Check for misuses beyond what the default handler and permissions checks catch
+        if target == ctx.message.author:
             return await ctx.send(f'You cannot {w1} yourself!')
         elif target.bot:
             return await ctx.send(f'{target} is a bot -- I cannot ban them.')
+        elif target == ctx.me:
+            # TODO: Make a `leave` command that removes the bot from the guild
+            return await ctx.send(f'Nice try... But if you are a guild admin '
+                                  f'and want me to leave, use the `leave` command.')
         # Check if the user is already banned; if so, give reason, exit
         try:
             # Collect a BanEntry tuple for the user, if it exists,
@@ -57,48 +86,23 @@ class Moderation(commands.Cog):
             else:
                 await ctx.guild.kick(target)
         except discord.Forbidden:
-            return await ctx.send(f'I cannot {w1} {target} due to their elevated role(s).')
+            return await ctx.send(f'I cannot {w1} {target} due to the role hierarchy.')
         # Notify both target and channel upon ban/kick completion
         try:
             await ctx.message.add_reaction('👍')
         except discord.Forbidden:
             await ctx.send(f'{target} was {w2}.')
-        return
 
     @commands.command()
-    async def ban(self, ctx, target: discord.User, reason: str = None):
-        """
-        Ban a user from a guild in which the command is sent.
-
-        Required Permissions:
-        `Ban Members`
-
-        Optional Permissions:
-        `Add Reactions`
-
-        Command Usage:
-        `ban <user#0000> <OPTIONAL: ban reason to log in guild audit>`
-        """
-        await self._ban_kick(ctx, target, reason, ban=True)
-
-    @commands.command()
-    async def kick(self, ctx, target: discord.User, reason=None):
-        """
-        Command to kick a user from a guild in which the command is sent.
-        This removes them but does not prevent re-entry.
-
-        Required Permissions:
-        `Kick Members`
-
-        Optional Permissions:
-        `Add Reactions`
-
-        Command Usage:
-        `kick <user#0000>`
-        """
-        await self._ban_kick(ctx, target, reason, ban=False)
+    async def leave(self, ctx):
+        if not utils.checks.is_admin_or_owner(ctx):
+            return await ctx.send('Only admins may use this command.')
+        else:
+            ctx.guild.leave()
 
     @commands.command(aliases=['clear'])
+    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_permissions(manage_messages=True)
     async def purge(self, ctx, amount: int):
         """
         Purge an amount of messages from the channel.
@@ -125,16 +129,9 @@ class Moderation(commands.Cog):
         # Delete the messages
         await ctx.channel.purge(limit=amount)
 
-    # TODO: Finish up the role command(s)
-    # @commands.command()
-    # async def role(self, ctx, target: discord.User = None):
-    #     """
-    #     """
-    #     pass
-
     @staticmethod
-    async def _change_role(member: discord.Member, role,
-                           remove=False, reason=None):
+    async def _change_role(member: discord.Member, role: discord.Role,
+                          remove=False, reason=None):
         """
         Adds or removes a role from a guild member.
         """
@@ -143,7 +140,7 @@ class Moderation(commands.Cog):
                 try:
                     await member.remove_roles(role, reason)
                 except discord.Forbidden:
-                    print(f'Cannot alter the `{role}` role due to elevated permissions.')
+                    print(f'Cannot alter the `{role}` role due to the role hierarchy.')
             else:
                 # No need to add the role if member already has it
                 print(f'{member.display_name} already has the `{role}` role -- no change.')
@@ -155,7 +152,7 @@ class Moderation(commands.Cog):
                 try:
                     await member.add_roles(role)
                 except discord.Forbidden:
-                    print(f'Cannot alter the `{role}` role due to elevated permissions.')
+                    print(f'Cannot alter the `{role}` role due to the role hierarchy.')
 
 
 def setup(bot):

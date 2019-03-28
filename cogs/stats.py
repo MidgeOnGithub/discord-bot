@@ -17,6 +17,7 @@ class Stats(commands.Cog):
         Command Usage:
         `info`
         `bot`
+        `bot_info`
         """
         await ctx.send(f'A simple python Discord bot scripted by Midge.\n'
                        f'<https://github.com/MidgeOnGithub/discord-bot>')
