@@ -34,36 +34,23 @@ class Live(commands.Cog):
             live = False
 
         # Remove the role if they are no longer streaming
-        has_role = live_role in after.roles
+        has_live_role = live_role in after.roles
         if not live:
-            if has_role:
-                print(f'Role should be removed ({after.name} no longer live).')
+            if has_live_role:
                 return await self._live_toggle(after, live_role, remove=True)
             else:
-                print(f'{after.name} didn\'t have role and is offline. No action.')
                 return
-        print(f'Activity details: {after.activity.details}.')
-        
+
         # From here, member is definitely live, so just
         # assign the role if they are eligible and don't have it,
         # remove the role if they are no longer eligible
         eligible = (after.name in self.bot.settings.member_whitelist or  # Whitelisted members always get the role
                     not self.bot.settings.game_filter or                 # If filter is empty, all games are valid
                     after.activity.details in self.bot.settings.game_filter)
-        if not eligible:
-            if has_role:
-                print(f'{after.name} is still live, but no longer eligible (game or blacklist).')
-                return await self._live_toggle(after, live_role, remove=True)
-            else:
-                print(f'{after.name} is live, but ineligible and doesn\'t have the role. No action.')
-                return
-        if eligible:
-            if has_role:
-                print(f'{after.name} is live, eligible, but already has the role.')
-                return
-            else:
-                print(f'Role should be added to {after.name}.')
-                return await self._live_toggle(after, live_role, remove=False)
+        if not eligible and has_live_role:
+            return await self._live_toggle(after, live_role, remove=True)
+        elif eligible and not has_live_role:
+            return await self._live_toggle(after, live_role, remove=False)
 
     @staticmethod
     async def _live_toggle(target: discord.Member,

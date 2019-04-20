@@ -35,7 +35,7 @@ class Owner(commands.Cog):
         if cog == 'live':
             await ctx.send('I need the `manage_roles` permission for this cog to work properly.')
             # TODO: see print below
-            print('DEV NOTE: Change this message to a check in an eventual `enable` command in moderation cog.')
+            print('DEV NOTE (load in owner)): Change this message to a check in an eventual `enable` command in moderation cog.')
         try:
             self.bot.load_extension('cogs.' + cog)
         except commands.ExtensionError as err:

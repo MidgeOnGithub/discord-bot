@@ -2,11 +2,29 @@ import discord
 from discord.ext import commands
 
 import utils.checks
+import utils.misc
+
 
 class Moderation(commands.Cog):
     """Provides Discord moderation commands for guild mods/admins."""
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    @commands.guild_only()
+    @commands.bot_has_permissions(ban_members=True)
+    async def banned(self, ctx):
+        """
+        Provides a list of users banned from the guild.
+        """
+        banned_members = await ctx.guild.bans()
+        if banned_members:
+            listed_names = utils.misc.numbered_strings_from_list([ban[1] for ban in banned_members])
+            msg = '\n'.join(listed_names)
+        else:
+            msg = 'No users are banned from this guild.'
+        await ctx.send(f'List of guild-banned users:\n'
+                       f'```{msg}```')
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -131,7 +149,7 @@ class Moderation(commands.Cog):
 
     @staticmethod
     async def _change_role(member: discord.Member, role: discord.Role,
-                          remove=False, reason=None):
+                           remove=False, reason=None):
         """
         Adds or removes a role from a guild member.
         """

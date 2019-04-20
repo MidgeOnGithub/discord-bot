@@ -23,11 +23,9 @@ class ErrorHandler(commands.Cog):
         if hasattr(ctx.command, 'on_error'):
             return
 
-        ignored = commands.CommandNotFound
-        standard_notification = (
-            commands.CheckFailure, commands.NotOwner,
-            commands.UserInputError, commands.CommandOnCooldown
-        )
+        ignored = (commands.CommandNotFound, commands.CheckFailure)
+        standard_notification = (commands.NotOwner, commands.UserInputError,
+                                 commands.CommandOnCooldown)
 
         # Check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found, keep the exception passed to on_command_error.
@@ -35,21 +33,19 @@ class ErrorHandler(commands.Cog):
 
         if isinstance(error, ignored):
             return
-        # TODO: Create more specific messages for some things currently
-        #  handled in standard_notification
         elif isinstance(error, discord.HTTPException):
             return await ctx.send(f'An HTTP exception occurred... try again later!')
         elif isinstance(error, standard_notification):
             if isinstance(error, commands.MissingRequiredArgument):
                 return await ctx.send(f'Required argument `{error.param}` not given.')
-            return await ctx.send(f'{error.args[0]}.')
+            return await ctx.send(f'{error}')
         elif isinstance(error, commands.DisabledCommand):
             return await ctx.send(f'{ctx.command} is disabled.')
         elif isinstance(error, commands.NoPrivateMessage):
             try:
                 return await ctx.author.send(f'{ctx.command} cannot be used in DMs.')
             except discord.DiscordException as ex:
-                print(f'{ex.args[0]}.')
+                print(f'Discord exception occurred:\n{ex}')
 
         # If not handled above, print default traceback.
         print(f'Ignoring exception in command {ctx.command}:', file=sys.stderr)
