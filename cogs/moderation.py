@@ -1,14 +1,16 @@
 import discord
 from discord.ext import commands
 
-import utils.checks
-import utils.misc
+from utils import checks, misc
 
 
 class Moderation(commands.Cog):
     """Provides Discord moderation commands for guild mods/admins."""
     def __init__(self, bot):
         self.bot = bot
+
+    def cog_check(self, ctx):
+        return checks.is_mod()
 
     @commands.command()
     @commands.guild_only()
@@ -19,7 +21,7 @@ class Moderation(commands.Cog):
         """
         banned_members = await ctx.guild.bans()
         if banned_members:
-            listed_names = utils.misc.numbered_strings_from_list([ban[1] for ban in banned_members])
+            listed_names = misc.numbered_strings_from_list([ban[1] for ban in banned_members])
             msg = '\n'.join(listed_names)
         else:
             msg = 'No users are banned from this guild.'
@@ -27,7 +29,6 @@ class Moderation(commands.Cog):
                        f'```{msg}```')
 
     @commands.command()
-    @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def ban(self, ctx, target: discord.User, reason: str = None):
         """
@@ -45,7 +46,6 @@ class Moderation(commands.Cog):
         await self._ban_kick(ctx, target, reason, ban=True)
 
     @commands.command()
-    @commands.has_permissions(kick_members=True)
     @commands.bot_has_permissions(kick_members=True)
     async def kick(self, ctx, target: discord.User, reason=None):
         """
@@ -111,15 +111,12 @@ class Moderation(commands.Cog):
         except discord.Forbidden:
             await ctx.send(f'{target} was {w2}.')
 
+    @checks.is_admin()
     @commands.command()
     async def leave(self, ctx):
-        if not utils.checks.is_admin_or_owner(ctx):
-            return await ctx.send('Only admins may use this command.')
-        else:
-            ctx.guild.leave()
+        ctx.guild.leave()
 
     @commands.command(aliases=['clear'])
-    @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     async def purge(self, ctx, amount: int):
         """

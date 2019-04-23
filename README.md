@@ -1,15 +1,15 @@
 ## Welcome to Midge's Discord Bot Documentation
 
 ### General Info
-The code for this bot is built upon the discord.py rewrite library, [which can be found on Github](https://github.com/Rapptz/discord.py/tree/rewrite).
+The code for this bot is built upon the discord.py library, [which can be found on Github](https://github.com/Rapptz/discord.py/tree/rewrite).
 > Vocabulary Notes:
-> * Discord refers to "Servers" internally as "Guilds", as does the Discord.py Rewrite documentation
+> * Discord refers to "Servers" internally as "Guilds", as does the Discord.py documentation
 > * Discord.py rewrite refers to what is often called a "module" or "extension" as a "cog"
 
 The inspiration for the bot is a personal challenge in learning/conforming to the heart of PEP-8 standards while dealing with a medium-length project.
 The bot is initially being developed with a specific guild and use case in mind.
 > Specific Use Case:
-> * Act as a guild helper, giving automated helpful responses to commands invoked by members attempting to answer newcomers' (or their own) questions
+> * Act as a guild helper for the Tomb Runner Discord guild, giving automated helpful responses to commands invoked by members attempting to answer newcomers' (or their own) questions
 > * Keep track of everyone in the guild who is streaming and give them a guild-specific "Live" role to highlight them among other guild members
   >   * This can be restricted by a game filter list (exceptions for users in whitelists or blacklists)
 
@@ -28,7 +28,7 @@ For now, the direction is to check the code itself -- purpose, implementation, a
 > Current Cog List:
 > * 'Core':
   >   * error_handler
-  >   * owner
+  >   * admin
   >   * settings
 > * live
 > * moderation

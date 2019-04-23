@@ -1,8 +1,7 @@
 import discord
 from discord.ext import commands
 
-import utils.checks
-import utils.data_io
+from utils import checks, data_io
 
 
 class Settings(commands.Cog):
@@ -19,7 +18,7 @@ class Settings(commands.Cog):
         }
 
     async def cog_check(self, ctx):
-        return await utils.checks.is_admin_or_owner(ctx)
+        return checks.is_admin()
 
     @commands.group(invoke_without_command=True)
     @commands.guild_only()
@@ -158,7 +157,7 @@ class Settings(commands.Cog):
     #  to be removed because they changed their Discord name
     @settings.command()
     @commands.guild_only()
-    async def member_blacklist(self, ctx, member: discord.Member):
+    async def member_blacklist(self, ctx, member: discord.User):
         """
         Command to add -- or if already present, remove -- a member from the live role whitelist.
 
@@ -166,7 +165,7 @@ class Settings(commands.Cog):
         `settings member_blacklist <member>`
         """
         await self._setting_list_item_toggle(member.id, self.bot.settings.member_blacklist)
-        member_list = [await commands.MemberConverter().convert(ctx, str(num))
+        member_list = [await commands.UserConverter().convert(ctx, str(num))
                        for num in self.bot.settings.member_blacklist]
         if member_list:
             msg = ', '.join([mem.display_name for mem in member_list])
@@ -177,7 +176,7 @@ class Settings(commands.Cog):
 
     @settings.command()
     @commands.guild_only()
-    async def member_whitelist(self, ctx, member: discord.Member):
+    async def member_whitelist(self, ctx, member: discord.User):
         """
         Command to add -- or if already present, remove -- a member from the live role whitelist.
 
@@ -185,7 +184,7 @@ class Settings(commands.Cog):
         `settings member_whitelist <member>`
         """
         await self._setting_list_item_toggle(member.id, self.bot.settings.member_whitelist)
-        member_list = [await commands.MemberConverter().convert(ctx, str(num))
+        member_list = [await commands.UserConverter().convert(ctx, str(num))
                        for num in self.bot.settings.member_whitelist]
         if member_list:
             msg = ', '.join([mem.display_name for mem in member_list])
@@ -211,7 +210,7 @@ class Settings(commands.Cog):
         """
         Saves any changes into the settings file
         """
-        self.bot.loop.run_in_executor(None, utils.data_io.save_settings,
+        self.bot.loop.run_in_executor(None, data_io.save_settings,
                                       self.bot.settings, self.bot.settings_file)
 
 

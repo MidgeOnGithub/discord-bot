@@ -2,7 +2,7 @@ import json
 
 from discord.ext import commands
 
-import utils.misc
+from utils import misc
 from botcredentials import TWITCH_CLIENT_ID
 
 
@@ -10,7 +10,6 @@ class HTTPForbiddenError(Exception):
     """
     Exception raised if a given response includes a 401 status.
     """
-
     def __init__(self, message: str = 'Response included 401 status.'):
         super().__init__(message)
 
@@ -19,7 +18,6 @@ class TwitchClientIDError(HTTPForbiddenError):
     """
     Exception if the bot's credential's file provided an invalid ClientID.
     """
-
     def __init__(self):
         super().__init__('Bad Twitch client ID.')
 
@@ -37,16 +35,16 @@ class Twitch(commands.Cog):
         Display the top twitch games sorted by current viewership.
 
         Command Usage:
-        `twitch top`
+        `twitch top_games <1 - 20>`
         """
-        if amount < 1:
-            amount = 1
-        elif amount > 20:
-            amount = 20
+        amount = 1 if amount < 1 else amount
+        amount = 20 if amount > 20 else amount
+
         url = 'https://api.twitch.tv/helix/games/top'
         payload = await self._fetch_payload(url, twitch_api=True)
-        games = [listing['name'] for listing in payload['data']]
-        games_strings = utils.misc.numbered_strings_from_list(games[:amount])
+        games = [listing['name'] for listing in payload['data'][:amount]]
+
+        games_strings = misc.numbered_strings_from_list(games)
         await ctx.send('Current top {} Twitch games by viewers:\n```'
                        '{}```'.format(amount, '\n'.join(games_strings)))
 
@@ -57,21 +55,22 @@ class Twitch(commands.Cog):
 
         Command Usage:
         `twitch top`
-        `twitch top <1 - 20>
+        `twitch top_streamers <1 - 20>
         """
-        if amount < 1:
-            amount = 1
-        elif amount > 20:
-            amount = 20
+        amount = 1 if amount < 1 else amount
+        amount = 20 if amount > 20 else amount
+
         url = f'https://api.twitch.tv/helix/streams?first={amount}'
         payload = await self._fetch_payload(url, twitch_api=True)
-        # TODO: Condense streamers and viewer_counts to a tuple, so as to only 
-        #  iterate through the payload once -- change other code as needed
-        streamers = [listing['user_name'] for listing in payload['data'][:amount]]
-        viewer_counts = [listing['viewer_count'] for listing in payload['data'][:amount]]
-        streamers_strings = utils.misc.numbered_strings_from_list(streamers)
-        message_strings = [f'{old_string} -- {viewer_count} viewers'
-                           for old_string, viewer_count in zip(streamers_strings, viewer_counts)]
+        streamers = []
+        viewer_counts = []
+        for listing in payload['data'][:amount]:
+            streamers.append(listing['user_name'])
+            viewer_counts.append(listing['viewer_count'])
+
+        streamers = misc.numbered_strings_from_list(streamers)
+        message_strings = [f'{name} -- {viewers} viewers'
+                           for name, viewers in zip(streamers, viewer_counts)]
         await ctx.send('Current top {} Twitch streamers by viewers:\n```'
                        '{}```'.format(amount, '\n'.join(message_strings)))
 

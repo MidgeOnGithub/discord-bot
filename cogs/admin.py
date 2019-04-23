@@ -1,22 +1,28 @@
+from typing import Union
+from copy import copy
+
 import discord
 from discord.ext import commands
 
-import utils.checks
+from utils import checks
 
 
-class Owner(commands.Cog):
-    """Owner-only actions for core bot functionalities and features."""
+class Admin(commands.Cog):
+    """Admin-only actions for core bot functionalities and features."""
 
     def __init__(self, bot):
         self.bot = bot
 
     async def cog_check(self, ctx):
-        return await utils.checks.is_admin_or_owner(ctx)
+        return checks.is_admin()
 
     @commands.command(hidden=True)
     async def cogs(self, ctx):
         """
         Retrieve the list of loaded cogs.
+
+        Required Permissions:
+        Bot owner or admin only.
 
         Command Usage:
         `cogs`
@@ -29,13 +35,17 @@ class Owner(commands.Cog):
         """
         Load a cog.
 
+        Required Permissions:
+        Bot owner only.
+
         Command Usage:
         `load <cog>`
         """
         if cog == 'live':
             await ctx.send('I need the `manage_roles` permission for this cog to work properly.')
             # TODO: see print below
-            print('DEV NOTE (load in owner)): Change this message to a check in an eventual `enable` command in moderation cog.')
+            print('DEV NOTE (load in owner)):'
+                  'Change this message to a check in an eventual `enable` command in moderation cog.')
         try:
             self.bot.load_extension('cogs.' + cog)
         except commands.ExtensionError as err:
@@ -46,6 +56,9 @@ class Owner(commands.Cog):
     async def unload(self, ctx, cog: str):
         """
         Unload a cog, unless it is a core cog.
+
+        Required Permissions:
+        Bot owner or admin only.
 
         Command Usage:
         `unload <cog>`
@@ -62,6 +75,9 @@ class Owner(commands.Cog):
     async def reload(self, ctx, cog: str):
         """
         Reload a cog.
+
+        Required Permissions:
+        Bot owner or admin only.
 
         Command Usage:
         `reload <cog>`
@@ -86,8 +102,27 @@ class Owner(commands.Cog):
         """
         await ctx.send('Bye, bye!')
         self.bot.session.close()
-        await discord.Client.close(self.bot)
+        await self.bot.close()
+
+    @commands.command(hidden=True)
+    async def sudo(self, ctx, who: Union[discord.Member, discord.User], *, command: str):
+        """Run a command as another user."""
+        msg = copy(ctx.message)
+        msg.author = who
+        msg.content = ctx.prefix + command
+        new_ctx = await self.bot.get_context(msg, cls=type(ctx))
+        await self.bot.invoke(new_ctx)
+
+    @commands.command(hidden=True)
+    async def do(self, ctx, times: int, *, command):
+        """Repeats a command a specified number of times."""
+        msg = copy(ctx.message)
+        msg.content = ctx.prefix + command
+
+        new_ctx = await self.bot.get_context(msg, cls=type(ctx))
+        for i in range(times):
+            await new_ctx.reinvoke()
 
 
 def setup(bot):
-    bot.add_cog(Owner(bot))
+    bot.add_cog(Admin(bot))
