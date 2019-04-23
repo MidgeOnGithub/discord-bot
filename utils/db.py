@@ -247,11 +247,10 @@ class ForeignKey(SQLType):
         on_update = on_update.upper()
 
         if on_delete not in valid_actions:
-            raise TypeError('on_delete must be one of %s.' % valid_actions)
+            raise TypeError(f'on_delete must be one of {valid_actions}.')
 
         if on_update not in valid_actions:
-            raise TypeError('on_update must be one of %s.' % valid_actions)
-
+            raise TypeError(f'on_update must be one of {valid_actions}.')
 
         self.table = table
         self.column = column
@@ -307,8 +306,8 @@ class Array(SQLType):
 
 
 class Column:
-    __slots__ = ( 'column_type', 'index', 'primary_key', 'nullable',
-                  'default', 'unique', 'name', 'index_name' )
+    __slots__ = ('column_type', 'index', 'primary_key', 'nullable',
+                 'default', 'unique', 'name', 'index_name')
     def __init__(self, column_type, *, index=False, primary_key=False,
                  nullable=True, unique=False, default=None, name=None):
 
@@ -325,7 +324,7 @@ class Column:
         self.nullable = nullable
         self.default = default
         self.name = name
-        self.index_name = None # to be filled later
+        self.index_name = None  # to be filled later
 
         if sum(map(bool, (unique, primary_key, default is not None))) > 1:
             raise SchemaError("'unique', 'primary_key', and 'default' are mutually exclusive.")
@@ -352,7 +351,7 @@ class Column:
         return d
 
     def _qualifiers_dict(self):
-        return { attr: getattr(self, attr) for attr in ('nullable', 'default')}
+        return {attr: getattr(self, attr) for attr in ('nullable', 'default')}
 
     def _is_rename(self, other):
         if self.name == other.name:
@@ -361,9 +360,7 @@ class Column:
         return self.unique == other.unique and self.primary_key == other.primary_key
 
     def _create_table(self):
-        builder = []
-        builder.append(self.name)
-        builder.append(self.column_type.to_sql())
+        builder = [self.name, self.column_type.to_sql()]
 
         default = self.default
         if default is not None:
@@ -398,7 +395,7 @@ class SchemaDiff:
         self.downgrade = downgrade
 
     def to_dict(self):
-        return { 'upgrade': self.upgrade, 'downgrade': self.downgrade }
+        return {'upgrade': self.upgrade, 'downgrade': self.downgrade}
 
     def is_empty(self):
         return len(self.upgrade) == 0 and len(self.downgrade) == 0
@@ -895,7 +892,7 @@ class Table(metaclass=TableMeta):
         def check_index_diff(a, b):
             if a.index != b.index:
                 # Let's assume we have {name: thing, index: True}
-                # and we're going to { name: foo, index: False }
+                # and we're going to   {name: foo, index: False}
                 # This is a 'dropped' column when we upgrade with a rename
                 # care must be taken to use the old name when dropping
 

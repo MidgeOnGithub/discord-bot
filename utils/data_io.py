@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-import json
 from pathlib import Path
+import json
 
 
 # TODO: Refactor the IO and save/load so that id = guild ids, etc.
