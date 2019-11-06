@@ -3,7 +3,6 @@ from pathlib import Path
 import json
 
 
-# TODO: Refactor the IO and save/load so that id = guild ids, etc.
 @dataclass
 class BotSettings(object):
     id = 0
@@ -43,7 +42,7 @@ def load_json(file_name: str):
         return json.load(infile)
 
 
-def load_settings(file_name: str):
+def load_settings(file_name: str = "./data/settings.json"):
     data = load_json(file_name)
     # Put data into a structure for easy `.` access
     settings = BotSettings()
@@ -62,5 +61,5 @@ def generate_default_settings(file_name: str = '../data/settings.json'):
 
 
 if __name__ == '__main__':
-    default_relative_file_location = '../data/settings.json'
+    default_relative_file_location = '../../data/settings.json'
     generate_default_settings(default_relative_file_location)

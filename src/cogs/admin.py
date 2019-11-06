@@ -4,7 +4,7 @@ from copy import copy
 import discord
 from discord.ext import commands
 
-from utils import checks
+from src.utils import checks
 
 
 class Admin(commands.Cog):

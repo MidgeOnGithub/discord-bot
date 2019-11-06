@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import checks, data_io
+from src.utils import checks, data_io
 
 
 class Settings(commands.Cog):
@@ -76,24 +76,6 @@ class Settings(commands.Cog):
 
     @settings.command()
     @commands.guild_only()
-    async def prefixes(self, ctx, prefix: str):
-        """
-        Command to add -- or if already present, remove -- a command prefix.
-
-        Command Usage:
-        `settings prefixes <prefix>`
-        """
-        active_prefixes = self.bot.settings.prefixes
-        if prefix in active_prefixes:
-            active_prefixes.remove(prefix)
-        else:
-            active_prefixes.append(prefix)
-        await self.update_settings_file()
-        await ctx.send('Changes saved. Available prefixes:\n'
-                       f'```{", ".join(active_prefixes)}```')
-
-    @settings.command()
-    @commands.guild_only()
     async def admin_role(self, ctx, new_role_name: str):
         """
         Command to change the admin role.
@@ -131,27 +113,42 @@ class Settings(commands.Cog):
         await self.update_settings_file()
         return True
 
-    # TODO: Fix the WET: game_filter, member_*list commands
+    # TODO: DRY: prefixes, game_filter, member_*list commands
+    @settings.command()
+    @commands.guild_only()
+    async def prefixes(self, ctx, prefix: str):
+        """
+        Command to add/remove a command prefix.
+
+        Command Usage:
+        `settings prefixes <prefix>`
+        """
+        await self._setting_list_item_toggle(prefix, self.bot.settings.prefix)
+        if self.bot.settings.prefixes:
+            msg = ', '.join([g for g in self.bot.settings.prefixes])
+        else:
+            msg = 'No prefixes (mentions only).'
+        await ctx.send('Changes saved. Available prefixes:\n'
+                       f'```{msg}```')
+
     @settings.command()
     @commands.guild_only()
     async def game_filter(self, ctx, *, game: str):
         """
-        Command to add -- or if already present, remove -- a game from the live role game filter.
+        Command to add/remove a game from the live role game filter.
 
         Command Usage:
         `settings game_filter <game>`
         """
         await self._setting_list_item_toggle(game, self.bot.settings.game_filter)
-        await self.update_settings_file()
         if self.bot.settings.game_filter:
-            msg = ', '.join([game for game in self.bot.settings.game_filter])
+            msg = ', '.join([g for g in self.bot.settings.game_filter])
         else:
             msg = 'No games listed.'
-        await ctx.send(f'Changes saved. Note that I don\'t check if you spelled it correctly!\n'
-                       f'Live role game filter:\n'
+        await ctx.send(f'Changes saved. (Note: I don\'t check if you spelled it correctly!) Live role game filter:\n'
                        f'```{msg}```')
 
-    # TODO: Consider: take a str instead; check it's a member, then add
+    # TODO: Consider: take a str instead; check for a member, then add
     #  But if it can't find the member, it tries to remove the name
     #  This could prevent names being "grandfathered" into the list and never being able
     #  to be removed because they changed their Discord name
@@ -159,7 +156,7 @@ class Settings(commands.Cog):
     @commands.guild_only()
     async def member_blacklist(self, ctx, member: discord.User):
         """
-        Command to add -- or if already present, remove -- a member from the live role whitelist.
+        Command to add/remove a member from the live role whitelist.
 
         Command Usage:
         `settings member_blacklist <member>`
@@ -178,7 +175,7 @@ class Settings(commands.Cog):
     @commands.guild_only()
     async def member_whitelist(self, ctx, member: discord.User):
         """
-        Command to add -- or if already present, remove -- a member from the live role whitelist.
+        Command to add/remove a member from the live role whitelist.
 
         Command Usage:
         `settings member_whitelist <member>`
@@ -196,15 +193,12 @@ class Settings(commands.Cog):
     async def _setting_list_item_toggle(self, item, setting_list: list):
         """
         Toggles an item from a settings list of items.
-        Returns a message to return after operation.
         """
         if item not in setting_list:
             setting_list.append(item)
         else:
             setting_list.remove(item)
         await self.update_settings_file()
-        if not setting_list:
-            return
 
     async def update_settings_file(self):
         """

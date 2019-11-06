@@ -2,20 +2,16 @@ import datetime
 import glob
 import logging
 import os
-from pathlib import Path
 
 import aiohttp
-import asyncio
 import discord
 from discord.ext import commands
 
-from utils.db import Table
-from utils import data_io
+from src.utils import data_io
 
-from botcredentials import TOKEN, PGSQL
+from src.botcredentials import TOKEN
 
 
-# TODO: Per-guild prefixes
 def get_prefix(bot, message):
     """
     Get the bot's command prefix(es).
@@ -25,8 +21,8 @@ def get_prefix(bot, message):
         return default
 
     prefixes = set(default)
-    # for prefix in settings.prefixes:
-    #     prefixes.add(prefix)
+    for prefix in bot.settings.prefixes:
+        prefixes.add(prefix)
 
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
@@ -48,23 +44,14 @@ def get_cog_files():
 
 logging.basicConfig(level=logging.INFO)
 
-# loop = asyncio.get_event_loop()
-# try:
-#     pool = loop.run_until_complete(Table.create_pool(PGSQL, command_timeout=60))
-# except Exception:
-#     exit(1)
-
-
-# Set command prefix and a Status indicating initialization
+# Initialize the bot
 bot = commands.AutoShardedBot(command_prefix=get_prefix, status=discord.Status.idle,
                               activity=discord.Game(name='Booting...'))
-# Store the bot's launch time
 bot.start_time = datetime.datetime.utcnow()
-# bot.pool = pool
-bot.core_cogs = ('admin', 'error_handler')
+bot.settings = data_io.load_settings()
+bot.core_cogs = ('admin', 'error_handler', 'settings')
 
-extensions = [*bot.core_cogs, 'moderation', 'live', 'stats', 'twitch']
-
+extensions = [*bot.core_cogs, 'moderation', 'live', 'stats', 'tomb_runner']
 for ext in extensions:
     try:
         bot.load_extension('cogs.' + ext)

@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils import checks, data_io
+from src.utils import checks, data_io
 
 
 TR_GUILD_ID = 183942718630658048
@@ -217,7 +217,7 @@ class TombRunner(commands.Cog):
         """Self-assign the blue color."""
         await self.__tr_role_toggle(ctx, 'blue')
 
-    @role.command(alias=("grey"))
+    @role.command(alias="grey")
     async def gray(self, ctx):
         """Self-assign the gray color."""
         await self.__tr_role_toggle(ctx, 'gray')

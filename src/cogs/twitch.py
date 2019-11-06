@@ -2,8 +2,8 @@ import json
 
 from discord.ext import commands
 
-from utils import misc
-from botcredentials import TWITCH_CLIENT_ID
+from src.utils import misc
+from src.botcredentials import TWITCH_CLIENT_ID
 
 
 class HTTPForbiddenError(Exception):

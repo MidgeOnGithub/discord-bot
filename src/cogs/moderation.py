@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import checks, misc
+from src.utils import checks, misc
 
 
 class Moderation(commands.Cog):
