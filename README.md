@@ -1,4 +1,4 @@
-## Welcome to Midge's Discord Bot Documentation
+## Midge's Tomb Runner Discord Bot
 
 ### General Info
 The code for this bot is built upon the discord.py library, [which can be found on Github](https://github.com/Rapptz/discord.py/tree/rewrite).
@@ -24,7 +24,7 @@ If the project is enjoyable enough, it may be expanded for general use by others
 
 ### Code and Command Info
 Generally speaking, the code within this project should be readable, commented where it's not.
-For now, the direction is to check the code itself -- purpose, implementation, and usage should be intuitive (I hope).
+For the foreseeable future, the direction is to check the code itself -- purpose, implementation, and usage should be intuitive (I hope).
 > Current Cog List:
 > * 'Core':
   >   * error_handler
@@ -36,11 +36,11 @@ For now, the direction is to check the code itself -- purpose, implementation, a
 > * twitch
 
 ### Important Clone/Fork Information
-In order to run this bot, in the root directory of your project you need a `botcredentials.py` file with this code:
-> * `TOKEN = 'YourDiscordDevAppTokenInQuotes'`
+In order to run this bot, in the `src` directory of your project you need a `botcredentials.py` file with this code:
+> * `TOKEN = 'DiscordDevAppTokenInQuotes'`
 > (optionally, if using the `Twitch` cog):
-> * `TWITCH_CLIENT_ID = 'YourTwitchAppClientIDInQuotes'`
+> * `TWITCH_CLIENT_ID = 'TwitchAppClientIDInQuotes'`
 
 This is for security.
-By default, the file `botcredentials.py` will be git-ignored if you use this project's `.gitignore` file, preventing TOKEN and/or TWITCH_CLIENT_ID from being published anywhere when using git for version control.
+By default, `botcredentials.py` will be git-ignored if you use this project's `.gitignore` file, preventing credentials from being published when using git for version control.
 Of course, you can use an alternate implementation as you wish.

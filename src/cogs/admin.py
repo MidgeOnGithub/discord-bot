@@ -101,7 +101,7 @@ class Admin(commands.Cog):
         `shutdown`
         """
         await ctx.send('Bye, bye!')
-        self.bot.session.close()
+        await self.bot.session.close()
         await self.bot.close()
 
     @commands.command(hidden=True)
@@ -120,7 +120,7 @@ class Admin(commands.Cog):
         msg.content = ctx.prefix + command
 
         new_ctx = await self.bot.get_context(msg, cls=type(ctx))
-        for i in range(times):
+        for _ in range(times):
             await new_ctx.reinvoke()
 
 

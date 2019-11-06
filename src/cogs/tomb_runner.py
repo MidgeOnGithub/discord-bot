@@ -21,7 +21,7 @@ CHAN_LCTOO_ID = 184212872405057536
 CHAN_MOBILE_ID = 184212986402045953
 CHAN_ROLE_REQUEST_ID = 409098961383718912
 
-# Chronological list of TR games as they're named in Twitch's directory
+# Chronological list of TR games as seen in Twitch's directory
 tr_games = [
     'Tomb Raider (1996)',
     'Tomb Raider: Unfinished Business',
@@ -217,7 +217,7 @@ class TombRunner(commands.Cog):
         """Self-assign the blue color."""
         await self.__tr_role_toggle(ctx, 'blue')
 
-    @role.command()
+    @role.command(alias=("grey"))
     async def gray(self, ctx):
         """Self-assign the gray color."""
         await self.__tr_role_toggle(ctx, 'gray')
@@ -261,17 +261,17 @@ class TombRunner(commands.Cog):
         `role <desired role>`
         """
         if desired_role not in tr_roles_dict.keys():
-            return await ctx.send(f'Role **{desired_role}** not listed... <@Midge#3751> fix your mistake, dummy.')
+            return await ctx.send(f'Role **{desired_role}** not in my keys... @Midge#3751 fix your mistake, dummy.')
 
         role = await commands.RoleConverter().convert(ctx, tr_roles_dict[desired_role])
         if role is None:
-            return await ctx.send(f'Error retrieving **{desired_role}** despite it being listed in my code.' +
-                                  f'@Midge#3751 fix your mistake, dummy.')
+            return await ctx.send(f'Error retrieving **{desired_role}** despite understanding it as a valid role...')
 
+        reason = f'Requested by {ctx.author.id}.'
         if role in ctx.author.roles:
-            await ctx.author.remove_roles(role, reason=f'Requested by {ctx.author.id}.')
+            await ctx.author.remove_roles(role, reason=reason)
         else:
-            await ctx.author.add_roles(role, reason=f'Requested by {ctx.author.id}.')
+            await ctx.author.add_roles(role, reason=reason)
 
 
 class Tomp1(commands.Cog):

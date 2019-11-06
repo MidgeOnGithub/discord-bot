@@ -5,12 +5,14 @@ import os
 from pathlib import Path
 
 import aiohttp
+import asyncio
 import discord
 from discord.ext import commands
 
+from utils.db import Table
 from utils import data_io
 
-from botcredentials import TOKEN
+from botcredentials import TOKEN, PGSQL
 
 
 # TODO: Per-guild prefixes
@@ -23,8 +25,8 @@ def get_prefix(bot, message):
         return default
 
     prefixes = set(default)
-    for prefix in settings.prefixes:
-        prefixes.add(prefix)
+    # for prefix in settings.prefixes:
+    #     prefixes.add(prefix)
 
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
@@ -46,23 +48,20 @@ def get_cog_files():
 
 logging.basicConfig(level=logging.INFO)
 
+# loop = asyncio.get_event_loop()
+# try:
+#     pool = loop.run_until_complete(Table.create_pool(PGSQL, command_timeout=60))
+# except Exception:
+#     exit(1)
+
+
 # Set command prefix and a Status indicating initialization
 bot = commands.AutoShardedBot(command_prefix=get_prefix, status=discord.Status.idle,
                               activity=discord.Game(name='Booting...'))
 # Store the bot's launch time
 bot.start_time = datetime.datetime.utcnow()
-
-bot.core_cogs = ('settings', 'admin', 'error_handler')
-
-settings_file_location = 'data/settings.json'
-if not Path(settings_file_location).is_file():
-    guilds = [guild.id for guild in bot.guilds]
-    for guild in guilds:
-        data_io.generate_default_settings(settings_file_location)
-settings = data_io.load_settings(settings_file_location)
-
-bot.settings = settings
-bot.settings_file = settings_file_location
+# bot.pool = pool
+bot.core_cogs = ('admin', 'error_handler')
 
 extensions = [*bot.core_cogs, 'moderation', 'live', 'stats', 'twitch']
 
